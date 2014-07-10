@@ -1,2 +1,2 @@
-deployii
+DeploYii
 ========
