@@ -61,6 +61,7 @@ class FetchController extends BaseConsoleController
                 $gitOptions['branch'] = $projectInfo->branch;
             }
 
+            // TODO: refactor using different variable for clone directory (workspace should include the optional rootFolder)
             $gitClone = $wrapper->cloneRepository($projectInfo->repo, $this->workspace, $gitOptions);
         }
         catch (GitException $e) {
@@ -68,12 +69,17 @@ class FetchController extends BaseConsoleController
             $exitCode = 1;
         }
 
+        if (!empty($projectInfo->rootFolder)) {
+            $this->workspace .= '/' . $projectInfo->rootFolder;
+        }
+
         if ($gitClone && $this->run) {
 
                 $buildFile = $this->workspace.'/'.$this->getScriptFolder().'/build.php'; // TODO: parametrise deployii folder name / path (relative to workspace)
 
             if (file_exists($buildFile)) {
-                $exitCode = TaskRunner::run($this, $buildFile, $this->target);
+                TaskRunner::init($this, $buildFile);
+                $exitCode = TaskRunner::run($this, $this->target);
             }
             else {
                 $this->stderr("Build file not found: ".$buildFile, Console::FG_RED);
@@ -87,7 +93,7 @@ class FetchController extends BaseConsoleController
     }
 
 
-    public function options($actionId) {
+    public function options($actionId = '') {
 
         $options = parent::options($actionId);
 

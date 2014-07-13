@@ -21,7 +21,7 @@ class SftpConnectCommand extends BaseCommand {
     public static function run(BaseConsoleController $controller, & $cmdParams, & $params) {
 
         $res = false;
-        $connectionId = (!empty($cmdParams[0]) ? Yii::getAlias($cmdParams[0]) : '');
+        $connectionId = (!empty($cmdParams[0]) ? $cmdParams[0] : '');
 
         $host = $controller->getParamVal('sftpHost', $params);
         $username = $controller->getParamVal('sftpUsername', $params);

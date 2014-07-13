@@ -114,16 +114,20 @@ class TaskRunner {
 
                 case 'prompt':
                 case 'select':
+                case 'confirm':
                     $varName = array_shift($functionParams);
 
                     $text = (!empty($functionParams[0]) ? $functionParams[0] : ''); // Prompt string
-                    $options = (!empty($functionParams[1]) ? $functionParams[1] : []); // options
-                    // Note: options parameter works differently between prompt and select methods
-                    // http://www.yiiframework.com/doc-2.0/yii-console-controller.html#select()-detail
 
                     if (!empty($varName) && $controller->interactive) {
-                        if ($cmdName === 'prompt') {
 
+                        if ($cmdName === 'prompt' || $cmdName === 'select') {
+                            // Note: options parameter works differently between prompt and select methods
+                            // http://www.yiiframework.com/doc-2.0/yii-console-controller.html#select()-detail
+                            $options = (!empty($functionParams[1]) ? $functionParams[1] : []); // options
+                        }
+
+                        if ($cmdName === 'prompt') {
                             if (empty($options['default'])) {
                                 $options['default'] = $controller->getParamVal($varName, $params);
                             }
@@ -131,7 +135,12 @@ class TaskRunner {
                             $params[$varName] = $controller->prompt($text, $options);
                         }
                         elseif ($cmdName === 'select') {
+                            /** @noinspection PhpUndefinedVariableInspection */
                             $params[$varName] = $controller->select($text, $options);
+                        }
+                        elseif ($cmdName === 'confirm') {
+                            $confirmDefault = (!empty($functionParams[1]) ? $functionParams[1] : false); // default
+                            $params[$varName] = $controller->confirm($text, $confirmDefault);
                         }
                     }
 
@@ -182,6 +191,10 @@ class TaskRunner {
         );
 
         return $string;
+    }
+
+    public static function parsePath($path) {
+        return self::parseStringParams(Yii::getAlias($path));
     }
 
     private static function _getCommand($cmdName) {

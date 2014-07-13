@@ -11,6 +11,7 @@ namespace app\lib\commands;
 
 use app\lib\BaseCommand;
 use app\lib\BaseConsoleController;
+use app\lib\TaskRunner;
 use yii\console\Exception;
 use yii\helpers\Console;
 use yii\helpers\FileHelper;
@@ -21,7 +22,7 @@ class MkdirCommand extends BaseCommand {
     public static function run(BaseConsoleController $controller, & $cmdParams, & $params) {
 
         $res = true;
-        $path = (!empty($cmdParams[0]) ? Yii::getAlias($cmdParams[0]) : '');
+        $path = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
 
         if (empty($path)) {
             throw new Exception('mkdir: Path cannot be empty');

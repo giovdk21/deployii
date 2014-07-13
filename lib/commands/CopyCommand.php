@@ -11,6 +11,7 @@ namespace app\lib\commands;
 
 use app\lib\BaseCommand;
 use app\lib\BaseConsoleController;
+use app\lib\TaskRunner;
 use yii\console\Exception;
 use yii\helpers\Console;
 use Yii;
@@ -20,8 +21,8 @@ class CopyCommand extends BaseCommand {
     public static function run(BaseConsoleController $controller, & $cmdParams, & $params) {
 
         $res = true;
-        $fileFrom = (!empty($cmdParams[1]) ? Yii::getAlias($cmdParams[0]) : '');
-        $fileTo = (!empty($cmdParams[1]) ? Yii::getAlias($cmdParams[1]) : '');
+        $fileFrom = (!empty($cmdParams[1]) ? TaskRunner::parsePath($cmdParams[0]) : '');
+        $fileTo = (!empty($cmdParams[1]) ? TaskRunner::parsePath($cmdParams[1]) : '');
 
         if (empty($fileFrom) || empty($fileTo)) {
             throw new Exception('copy: Origin and destination cannot be empty');
