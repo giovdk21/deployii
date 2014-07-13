@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e909d337ef95c1c17d9926338b170921",
+    "hash": "001fa823d904e99d65c481c6175a2fbe",
     "packages": [
         {
             "name": "cebe/markdown",
@@ -377,12 +377,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/twbs/bootstrap.git",
-                "reference": "c3ae289f4a9e5fc14e489e3914d150954469f1ac"
+                "reference": "2c540b7e330eb2e8ecedfd7d62fb603f96ee39db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twbs/bootstrap/zipball/c3ae289f4a9e5fc14e489e3914d150954469f1ac",
-                "reference": "c3ae289f4a9e5fc14e489e3914d150954469f1ac",
+                "url": "https://api.github.com/repos/twbs/bootstrap/zipball/2c540b7e330eb2e8ecedfd7d62fb603f96ee39db",
+                "reference": "2c540b7e330eb2e8ecedfd7d62fb603f96ee39db",
                 "shasum": ""
             },
             "replace": {
@@ -420,7 +420,7 @@
                 "responsive",
                 "web"
             ],
-            "time": "2014-07-10 23:58:18"
+            "time": "2014-07-13 07:08:25"
         },
         {
             "name": "yiisoft/jquery",
@@ -477,12 +477,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-framework.git",
-                "reference": "8992c7d402b9dfd8c957772aaedea2827b8b342d"
+                "reference": "65b914f41b42400bae2bef999c184cd8cc3565e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/8992c7d402b9dfd8c957772aaedea2827b8b342d",
-                "reference": "8992c7d402b9dfd8c957772aaedea2827b8b342d",
+                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/65b914f41b42400bae2bef999c184cd8cc3565e7",
+                "reference": "65b914f41b42400bae2bef999c184cd8cc3565e7",
                 "shasum": ""
             },
             "require": {
@@ -550,7 +550,7 @@
                 "framework",
                 "yii2"
             ],
-            "time": "2014-07-11 10:53:52"
+            "time": "2014-07-12 17:14:48"
         },
         {
             "name": "yiisoft/yii2-bootstrap",
