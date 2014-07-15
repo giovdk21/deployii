@@ -41,7 +41,12 @@ class BaseConsoleController extends Controller {
                 if (!is_int($name)) {
 
                     if ($value !== '') {
-                        $this->_providedOptions[$name]++;
+                        if (!isset($this->_providedOptions[$name])) {
+                            $this->_providedOptions[$name] = 1;
+                        }
+                        else {
+                            $this->_providedOptions[$name]++;
+                        }
                     }
 
                     if (!in_array($name, $options, true)) {
@@ -55,11 +60,7 @@ class BaseConsoleController extends Controller {
         parent::runAction($id, $params);
     }
 
-    public function options($actionId = '') {
-
-        if (empty($actionId)) {
-            $actionId = $this->action->id;
-        }
+    public function options($actionId) {
 
         $options = parent::options($actionId);
 

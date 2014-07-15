@@ -28,7 +28,7 @@ class SftpConnectReqs extends Behavior {
 
     public $sftpKeyPassword = '';
 
-    protected $connections = [];
+    public $connections = [];
 
 
     public static function getCommandOptions() {

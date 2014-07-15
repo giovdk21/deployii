@@ -297,7 +297,7 @@ class TaskRunner {
     private static function _setParamsFromOptions(BaseConsoleController $controller) {
         $params = & self::$_params;
 
-        $allOptions = array_merge($controller->options(), $controller->extraOptions);
+        $allOptions = array_merge($controller->options(''), $controller->extraOptions);
         $providedOptions = $controller->getProvidedOptions();
 
         foreach ($allOptions as $optName) {
