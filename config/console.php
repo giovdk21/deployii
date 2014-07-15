@@ -26,5 +26,8 @@ return [
         'db' => $db,
     ],
     'enableCoreCommands' => false,
+    'controllerMap' => [
+        'migrate' => 'yii\console\controllers\MigrateController', // enable the migrate core command
+    ],
     'params' => $params,
 ];
