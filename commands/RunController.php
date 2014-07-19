@@ -25,10 +25,10 @@ class RunController extends BaseConsoleController
     /**
      * This command echoes what you have entered as the message.
      *
-     * @param string     $workspace
-     * @param string     $target
+     * @param string     $workspace Path to the project workspace
+     * @param string     $target The target to be ran; if not specified "default" will be used
      *
-     * @return int
+     * @return int The exit code
      */
     public function actionIndex($workspace, $target = '')
     {

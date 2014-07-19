@@ -39,7 +39,7 @@ class FetchController extends BaseConsoleController
     /**
      * @param $projectId
      *
-     * @return int
+     * @return int The exit code
      */
     public function actionIndex($projectId) {
         $exitCode = 0;
