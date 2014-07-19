@@ -18,6 +18,9 @@ use Yii;
 
 class MkdirCommand extends BaseCommand {
 
+    /**
+     * @inheritdoc
+     */
     public static function run(& $cmdParams, & $params) {
 
         $res = true;

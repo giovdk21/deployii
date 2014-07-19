@@ -93,6 +93,9 @@ class FetchController extends BaseConsoleController
     }
 
 
+    /**
+     * @inheritdoc
+     */
     public function options($actionId = '') {
 
         $options = parent::options($actionId);

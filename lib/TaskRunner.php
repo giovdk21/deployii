@@ -15,14 +15,33 @@ use Yii;
 
 class TaskRunner {
 
+    /** @var array the content of the build.php file */
     private static $_buildScript = [];
+    /** @var array build script parameters */
     private static $_params = [];
+    /** @var array list of loaded requirements */
     private static $_loadedRequirements = [];
+    /** @var array the content of the loaded recipes */
     private static $_recipes = [];
 
     /** @var BaseConsoleController The controller instance  */
     public static $controller = '';
 
+    /**
+     * Initialise the TaskRunner:
+     * - set aliases
+     * - check script version / compatibility
+     * - check that the user defined commands and recipes do not override the built-in ones
+     * - load requirements and initialises the extra parameters
+     * - load default parameters from build file
+     * - self::_setParamsFromOptions() // TODO
+     * - check commands global requirements to make sure that all the commands can be ran
+     *
+     * @param BaseConsoleController $controller The controller which initialises the TaskRunner
+     * @param string                $buildFile
+     *
+     * @throws \yii\console\Exception
+     */
     public static function init(BaseConsoleController $controller, $buildFile) {
         self::$_params = [];
         self::$_loadedRequirements = [];
@@ -64,6 +83,14 @@ class TaskRunner {
         self::_checkAllRequirements();
     }
 
+    /**
+     * Run the specified build target
+     *
+     * @param string $target the target to be ran; if not specified "default" will be used
+     *
+     * @return int the exit code
+     * @throws \yii\console\Exception if init() has not been called yet
+     */
     public static function run($target = '') {
         $exitCode = 0;
         $target = (empty($target) ? 'default' : $target);
@@ -83,11 +110,29 @@ class TaskRunner {
         return $exitCode;
     }
 
+    /**
+     * Run the specified target of the given script (build, recipe, ...)
+     *
+     * @param array  $targetScript the content of the script
+     * @param string $targetName the target to be ran; if not specified "default" will be used
+     */
     private static function _runTarget($targetScript, $targetName = '') {
         self::$controller->stdout("Running ".$targetName."...\n", Console::FG_GREEN, Console::BOLD);
         self::_process($targetScript);
     }
 
+    /**
+     * Load the required recipe and its requirements.
+     * Note: recipes have to be loaded on init() declaring them as requirements
+     *
+     * This method will first look for built-in recipes and then for the user defined ones.
+     * TODO: log warning message if the requested recipe is not found
+     *
+     * @param string $recipeName
+     * @param bool   $userRecipe whether to search inside the user build scripts folder
+     *
+     * @return bool|mixed
+     */
     private static function _loadRecipe($recipeName, $userRecipe = false) {
         $recipeScript = false;
 
@@ -119,6 +164,14 @@ class TaskRunner {
         return $recipeScript;
     }
 
+    /**
+     * Run the requested recipe script target
+     *
+     * @param string $recipeName
+     * @param string $recipeTarget the target to be ran; if not specified "default" will be used
+     *
+     * @throws \yii\console\Exception
+     */
     private static function _runRecipe($recipeName, $recipeTarget='') {
         $recipeTarget = (empty($recipeTarget) ? 'default' : $recipeTarget);
 
@@ -141,6 +194,11 @@ class TaskRunner {
         self::_process($recipeScript);
     }
 
+    /**
+     * Process the script
+     *
+     * @param array $script the (build, recipe, ...) script
+     */
     private static function _process($script) {
 
         $params = & self::$_params;
@@ -220,7 +278,8 @@ class TaskRunner {
                 case 'if':
                     $result = (!empty($functionParams[0]) ? eval('return '.$functionParams[0].';') : false);
 
-                    self::$controller->stdout('IF result: '.var_export($result, true)."\n", Console::FG_PURPLE);
+                    // TODO: log instead of print out:
+                    //self::$controller->stdout('IF result: '.var_export($result, true)."\n", Console::FG_PURPLE);
 
                     if ($result && !empty($functionParams[1]) && is_array($functionParams[1])) {
                         self::_process($functionParams[1]);
@@ -246,6 +305,14 @@ class TaskRunner {
 
     }
 
+    /**
+     * Replace build placeholders with the corresponding build parameters.
+     * Placeholders are defined as {{varName}}
+     *
+     * @param string $string the text to be parsed
+     *
+     * @return string
+     */
     public static function parseStringParams($string) {
 
         $string = preg_replace_callback('/{{(.*)}}/', function(array $matches) {
@@ -270,10 +337,29 @@ class TaskRunner {
         return $string;
     }
 
+    /**
+     * Translates the path alias into an actual path and parses
+     * the placeholders, if any.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
     public static function parsePath($path) {
         return self::parseStringParams(Yii::getAlias($path));
     }
 
+    /**
+     * Get the requested command
+     *
+     * This method will first look for built-in commands and then for the user defined ones.
+     * TODO: log warning message if the requested command is not found
+     *
+     * @param string $cmdName The name of the command
+     * @param bool   $userCommand whether to search inside the user build scripts folder
+     *
+     * @return bool|string
+     */
     private static function _getCommand($cmdName, $userCommand = false) {
         $command = false;
 
@@ -300,6 +386,13 @@ class TaskRunner {
         return $command;
     }
 
+    /**
+     * Load the requirements file for the given command, if present.
+     *
+     * @param string $cmdName The name of the command
+     *
+     * @return bool|string
+     */
     private static function _getReqs($cmdName) {
         $reqs = false;
         $commandsDir = __DIR__.'/commands';
@@ -314,6 +407,13 @@ class TaskRunner {
         return $reqs;
     }
 
+    /**
+     * Run the requested commands
+     * @see self::_getCommand
+     *
+     * @param string $cmdName The name of the command
+     * @param array $functionParams the parameters passed to the command
+     */
     private static function _runCommand($cmdName, $functionParams) {
 
         $command = self::_getCommand($cmdName);
@@ -324,11 +424,21 @@ class TaskRunner {
 
     }
 
+    /**
+     * Set global aliases
+     */
     private static function _setAliases() {
         Yii::setAlias('@workspace', self::$controller->workspace);
         Yii::setAlias('@buildScripts', self::$controller->workspace.'/'.self::$controller->getScriptFolder());
     }
 
+    /**
+     * Load commands / recipes requirements
+     *
+     * @param array $reqs List of requirements in the format of ['<name>--<type>']
+     *
+     * @throws \yii\console\Exception
+     */
     private static function _loadRequirements($reqs) {
 
 
@@ -401,6 +511,10 @@ class TaskRunner {
         }
     }
 
+    /**
+     * If an option passed via command line has also been defined as a script parameter,
+     * the script parameter will be overwritten with the value passed from the command line.
+     */
     private static function _setParamsFromOptions() {
         $params = & self::$_params;
 
@@ -421,7 +535,7 @@ class TaskRunner {
      *
      * File names are converted to lower case so that the check is case insensitive.
      *
-     * @throws \yii\console\Exception
+     * @throws \yii\console\Exception if a built-in command or recipe has been overridden
      */
     private static function _checkUserScripts() {
 

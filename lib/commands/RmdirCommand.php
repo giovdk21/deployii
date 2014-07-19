@@ -17,6 +17,9 @@ use Yii;
 
 class RmdirCommand extends BaseCommand {
 
+    /**
+     * @inheritdoc
+     */
     public static function run(& $cmdParams, & $params) {
 
         $path = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');

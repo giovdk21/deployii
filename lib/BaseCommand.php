@@ -12,4 +12,14 @@ namespace app\lib;
 
 class BaseCommand {
 
+    /**
+     * @param array $cmdParams parameters passed to the command
+     * @param array $params build script parameters
+     *
+     * @return bool
+     */
+    public static function run(& $cmdParams, & $params) {
+        return true;
+    }
+
 } 

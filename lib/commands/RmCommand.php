@@ -16,6 +16,9 @@ use Yii;
 
 class RmCommand extends BaseCommand {
 
+    /**
+     * @inheritdoc
+     */
     public static function run(& $cmdParams, & $params) {
 
         $filename = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');

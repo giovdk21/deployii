@@ -20,14 +20,22 @@ class BaseConsoleController extends Controller {
      */
     public $dryRun = false;
 
+    /** @var string path to the project workspace */
     public $workspace;
 
+    /** @var array extra command line options */
     public $extraOptions = [];
+    /** @var array extra parameters storage */
     private $_extraParams = [];
+    /** @var array list of options provided from command line */
     private $_providedOptions = [];
 
+    /** @var array log messages */
     private static $_log = [];
 
+    /**
+     * Initialise the controller
+     */
     public function init() {
         parent::init();
 
@@ -74,6 +82,9 @@ class BaseConsoleController extends Controller {
         parent::runAction($id, $params);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function options($actionId) {
 
         $options = parent::options($actionId);
@@ -84,14 +95,18 @@ class BaseConsoleController extends Controller {
     }
 
     /**
-     * @return array
+     * Getter for $this->_extraParams
+     *
+     * @return array stored extra parameters values
      */
     public function getExtraParams() {
         return $this->_extraParams;
     }
 
     /**
-     * @return array
+     * Getter for $this->_providedOptions
+     *
+     * @return array list of options provided from command line
      */
     public function getProvidedOptions() {
         return $this->_providedOptions;

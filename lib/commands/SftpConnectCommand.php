@@ -18,6 +18,9 @@ use Net_SFTP;
 
 class SftpConnectCommand extends BaseCommand {
 
+    /**
+     * @inheritdoc
+     */
     public static function run(& $cmdParams, & $params) {
         $controller = TaskRunner::$controller;
 

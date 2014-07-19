@@ -15,6 +15,9 @@ use yii\helpers\Console;
 
 class ExecCommand extends BaseCommand {
 
+    /**
+     * @inheritdoc
+     */
     public static function run(& $cmdParams, & $params) {
 
         $execOutput = [];

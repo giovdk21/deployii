@@ -17,6 +17,9 @@ use Yii;
 
 class CopyCommand extends BaseCommand {
 
+    /**
+     * @inheritdoc
+     */
     public static function run(& $cmdParams, & $params) {
 
         $res = true;
