@@ -38,6 +38,9 @@ class TaskRunner {
             throw new Exception('Please specify the "deployiiVersion" in your build script');
         }
 
+        // Check that the user defined commands and recipes do not override the built-in ones:
+        self::_checkUserScripts();
+
         // Load requirements and initialise the extra parameters:
         if (!empty(self::$_buildScript['require'])) {
             self::_loadRequirements($controller, self::$_buildScript['require']);
@@ -409,6 +412,54 @@ class TaskRunner {
                 $controller->$optName = null;
             }
         }
+    }
+
+    /**
+     * Compare the php files of the built-in commands and recipes with the user defined ones.
+     * If the user defined ones have the same name of the built-in ones, throws and exception.
+     *
+     * File names are converted to lower case so that the check is case insensitive.
+     *
+     * @throws \yii\console\Exception
+     */
+    private static function _checkUserScripts() {
+
+        $buildScripts = Yii::getAlias('@buildScripts');
+
+        $builtInCommands = self::getLowercaseBaseNames(glob(__DIR__.'/commands/*.php'));
+        $builtInRecipes = self::getLowercaseBaseNames(glob(__DIR__.'/recipes/*.php'));
+
+        $userCommands = self::getLowercaseBaseNames(glob($buildScripts.'/commands/*.php'));
+        $userRecipes = self::getLowercaseBaseNames(glob($buildScripts.'/recipes/*.php'));
+
+        $overridingCommands = array_intersect($builtInCommands, $userCommands);
+        $overridingRecipes = array_intersect($builtInRecipes, $userRecipes);
+
+
+        if (!empty($overridingCommands) || !empty($overridingRecipes)) {
+            throw new Exception(
+                'You cannot override built-in commands or recipes: '
+                .trim(implode(", ", $overridingCommands).", ".implode(".", $overridingRecipes), ', ')
+            );
+        }
+    }
+
+    /**
+     * Returns an array containing the base name of each element
+     * of fileList in lower case
+     *
+     * @param array $fileList
+     *
+     * @return array
+     */
+    public static function getLowercaseBaseNames($fileList) {
+        $res = [];
+
+        foreach ($fileList as $path) {
+            $res [] = strtolower(basename($path));
+        }
+
+        return $res;
     }
 
 } 
