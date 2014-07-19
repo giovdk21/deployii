@@ -10,6 +10,7 @@
 namespace app\lib;
 
 use yii\console\Controller;
+use yii\helpers\Console;
 
 class BaseConsoleController extends Controller {
 
@@ -26,6 +27,19 @@ class BaseConsoleController extends Controller {
     private $_providedOptions = [];
 
     private static $_log = [];
+
+    public function init() {
+        parent::init();
+
+        $this->stdout(" Welcome to DeploYii ");
+        $this->stdout(DEPLOYII_VERSION, Console::FG_YELLOW);
+        $this->stdout("\n");
+        if (!DEPLOYII_STABLE) {
+            $this->stdout("Note: ", Console::FG_PURPLE);
+            $this->stdout("this version is not ready for production! Use it only for learning / testing purposes.");
+            $this->stdout("\n");
+        }
+    }
 
     /**
      * Extending runAction to handle extra params loaded dynamically
