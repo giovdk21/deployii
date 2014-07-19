@@ -9,7 +9,6 @@
 
 namespace app\lib\commands;
 
-use app\lib\BaseConsoleController;
 use yii\base\Behavior;
 
 class SftpConnectReqs extends Behavior {
@@ -45,10 +44,9 @@ class SftpConnectReqs extends Behavior {
 
 
     /**
-     * @param BaseConsoleController $controller
      * @param array                 $buildParams
      */
-    public static function checkRequirements(BaseConsoleController $controller, & $buildParams) {
+    public static function checkRequirements(& $buildParams) {
         // ... nothing to do here yet.
     }
 

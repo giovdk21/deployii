@@ -79,7 +79,7 @@ class FetchController extends BaseConsoleController
 
             if (file_exists($buildFile)) {
                 TaskRunner::init($this, $buildFile);
-                $exitCode = TaskRunner::run($this, $this->target);
+                $exitCode = TaskRunner::run($this->target);
             }
             else {
                 $this->stderr("Build file not found: ".$buildFile, Console::FG_RED);

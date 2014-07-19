@@ -10,12 +10,12 @@
 namespace app\lib\commands;
 
 use app\lib\BaseCommand;
-use app\lib\BaseConsoleController;
+use app\lib\TaskRunner;
 use yii\helpers\Console;
 
 class ExecCommand extends BaseCommand {
 
-    public static function run(BaseConsoleController $controller, & $cmdParams, & $params) {
+    public static function run(& $cmdParams, & $params) {
 
         $execOutput = [];
         $execResult = null;
@@ -27,7 +27,7 @@ class ExecCommand extends BaseCommand {
         $cmdFull = trim($execCommand.' '.$execParams.' '.$execHiddenParams);
 
         if (!empty($execCommand)) {
-            if (!$controller->dryRun) {
+            if (!TaskRunner::$controller->dryRun) {
                 exec($cmdFull, $execOutput, $execResult);
             }
             else {
@@ -36,14 +36,14 @@ class ExecCommand extends BaseCommand {
             }
 
             if ($execResult !== 0) {
-                $controller->stderr("Error running ".$cmdString." ({$execResult})\n", Console::FG_RED);
+                TaskRunner::$controller->stderr("Error running ".$cmdString." ({$execResult})\n", Console::FG_RED);
             }
             else {
-                $controller->stdout('Running shell command: ');
-                $controller->stdout($cmdString."\n", Console::FG_YELLOW);
-                $controller->stdout('---------------------------------------------------------------'."\n");
-                $controller->stdout(implode("\n", $execOutput)."\n");
-                $controller->stdout('---------------------------------------------------------------'."\n\n");
+                TaskRunner::$controller->stdout('Running shell command: ');
+                TaskRunner::$controller->stdout($cmdString."\n", Console::FG_YELLOW);
+                TaskRunner::$controller->stdout('---------------------------------------------------------------'."\n");
+                TaskRunner::$controller->stdout(implode("\n", $execOutput)."\n");
+                TaskRunner::$controller->stdout('---------------------------------------------------------------'."\n\n");
             }
         }
 

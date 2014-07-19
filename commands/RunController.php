@@ -37,7 +37,7 @@ class RunController extends BaseConsoleController
         $buildFile = $this->workspace . '/' . $this->getScriptFolder() . '/build.php'; // TODO: parametrise deployii folder name / path (relative to workspace)
 
         TaskRunner::init($this, $buildFile);
-        $exitCode = TaskRunner::run($this, $target);
+        $exitCode = TaskRunner::run($target);
 
         $this->stdout("\n");
 

@@ -10,7 +10,6 @@
 namespace app\lib\commands;
 
 use app\lib\BaseCommand;
-use app\lib\BaseConsoleController;
 use app\lib\TaskRunner;
 use yii\console\Exception;
 use yii\helpers\FileHelper;
@@ -18,7 +17,7 @@ use Yii;
 
 class RmdirCommand extends BaseCommand {
 
-    public static function run(BaseConsoleController $controller, & $cmdParams, & $params) {
+    public static function run(& $cmdParams, & $params) {
 
         $path = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
 
@@ -26,13 +25,13 @@ class RmdirCommand extends BaseCommand {
             throw new Exception('rmdir: Path cannot be empty');
         }
 
-        $controller->stdout('Removing directory: '.$path);
+        TaskRunner::$controller->stdout('Removing directory: '.$path);
 
-        if (!$controller->dryRun) {
+        if (!TaskRunner::$controller->dryRun) {
             FileHelper::removeDirectory($path);
         }
 
-        $controller->stdout("\n");
+        TaskRunner::$controller->stdout("\n");
         return true;
     }
 

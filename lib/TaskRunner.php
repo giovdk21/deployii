@@ -20,15 +20,20 @@ class TaskRunner {
     private static $_loadedRequirements = [];
     private static $_recipes = [];
 
+    /** @var BaseConsoleController The controller instance  */
+    public static $controller = '';
+
     public static function init(BaseConsoleController $controller, $buildFile) {
         self::$_params = [];
         self::$_loadedRequirements = [];
+
+        self::$controller = $controller;
 
         /** @noinspection PhpIncludeInspection */
         self::$_buildScript = require($buildFile);
 
         // Set default aliases
-        self::_setAliases($controller);
+        self::_setAliases();
 
         // Check script compatibility:
         if (!empty(self::$_buildScript['deployiiVersion'])) {
@@ -43,9 +48,9 @@ class TaskRunner {
 
         // Load requirements and initialise the extra parameters:
         if (!empty(self::$_buildScript['require'])) {
-            self::_loadRequirements($controller, self::$_buildScript['require']);
+            self::_loadRequirements(self::$_buildScript['require']);
         }
-        $controller->initExtraParams();
+        self::$controller->initExtraParams();
 
 
         // Load default parameters from build file:
@@ -53,37 +58,37 @@ class TaskRunner {
             self::$_params = array_merge(self::$_params, self::$_buildScript['params']);
         }
 
-        self::_setParamsFromOptions($controller);
+        self::_setParamsFromOptions();
 
 
-        self::_checkAllRequirements($controller);
+        self::_checkAllRequirements();
     }
 
-    public static function run(BaseConsoleController $controller, $target = '') {
+    public static function run($target = '') {
         $exitCode = 0;
         $target = (empty($target) ? 'default' : $target);
 
-        if (empty(self::$_buildScript)) {
+        if (empty(self::$_buildScript) || empty(self::$controller)) {
             throw new Exception('Empty script: init() not called or invalid build file');
         }
 
         if (isset(self::$_buildScript['targets'][$target])) { // run the selected target
-            TaskRunner::_runTarget($controller, self::$_buildScript['targets'][$target], $target);
+            TaskRunner::_runTarget(self::$_buildScript['targets'][$target], $target);
         }
         else {
-            $controller->stderr('Target not found: '.$target, Console::FG_RED);
+            self::$controller->stderr('Target not found: '.$target, Console::FG_RED);
             $exitCode = 1;
         }
 
         return $exitCode;
     }
 
-    private static function _runTarget(BaseConsoleController $controller, $targetScript, $targetName = '') {
-        $controller->stdout("Running ".$targetName."...\n", Console::FG_GREEN, Console::BOLD);
-        self::_process($controller, $targetScript);
+    private static function _runTarget($targetScript, $targetName = '') {
+        self::$controller->stdout("Running ".$targetName."...\n", Console::FG_GREEN, Console::BOLD);
+        self::_process($targetScript);
     }
 
-    private static function _loadRecipe(BaseConsoleController $controller, $recipeName, $userRecipe = false) {
+    private static function _loadRecipe($recipeName, $userRecipe = false) {
         $recipeScript = false;
 
         $recipeClass = ucfirst($recipeName) . 'Recipe';
@@ -102,21 +107,19 @@ class TaskRunner {
             $recipeScript = require($recipeFile);
         }
         elseif (!$userRecipe) {
-            $recipeScript = self::_loadRecipe($controller, $recipeName, true);
+            $recipeScript = self::_loadRecipe($recipeName, true);
         }
 
         // Load requirements and initialise the extra parameters:
         if (!empty($recipeScript['require'])) {
-            self::_loadRequirements($controller, $recipeScript['require']);
+            self::_loadRequirements($recipeScript['require']);
         }
 
         self::$_recipes[$recipeName] = $recipeScript;
         return $recipeScript;
     }
 
-    private static function _runRecipe(
-        BaseConsoleController $controller, $recipeName, $recipeTarget=''
-    ) {
+    private static function _runRecipe($recipeName, $recipeTarget='') {
         $recipeTarget = (empty($recipeTarget) ? 'default' : $recipeTarget);
 
         if (
@@ -131,14 +134,14 @@ class TaskRunner {
 
         $recipeScript = self::$_recipes[$recipeName]['targets'][$recipeTarget];
 
-        $controller->stdout(
+        self::$controller->stdout(
             "Running recipe: {$recipeName} [{$recipeTarget}]...\n",
             Console::FG_GREEN, Console::BOLD
         );
-        self::_process($controller, $recipeScript);
+        self::_process($recipeScript);
     }
 
-    private static function _process(BaseConsoleController $controller, $script) {
+    private static function _process($script) {
 
         $params = & self::$_params;
 
@@ -156,15 +159,15 @@ class TaskRunner {
                         && isset(self::$_buildScript['targets'][$targetName])
                         && is_array(self::$_buildScript['targets'][$targetName])
                     ) {
-                        self::run($controller, $targetName);
+                        self::run($targetName);
                     }
                     else {
-                        $controller->stderr('Invalid target: '.$targetName, Console::FG_RED);
+                        self::$controller->stderr('Invalid target: '.$targetName, Console::FG_RED);
                     }
                     break;
 
                 case 'out':
-                    $function = [$controller, 'stdout'];
+                    $function = [self::$controller, 'stdout'];
                     $functionParams[0] = (!empty($functionParams[0])
                         ? self::parseStringParams($functionParams[0])."\n"
                         : ''
@@ -172,7 +175,7 @@ class TaskRunner {
                     break;
 
                 case 'err':
-                    $function = [$controller, 'stderr'];
+                    $function = [self::$controller, 'stderr'];
                     $functionParams[0] = (!empty($functionParams[0])
                         ? self::parseStringParams($functionParams[0])."\n"
                         : ''
@@ -187,7 +190,7 @@ class TaskRunner {
 
                     $text = (!empty($functionParams[0]) ? $functionParams[0] : ''); // Prompt string
 
-                    if (!empty($varName) && $controller->interactive) {
+                    if (!empty($varName) && self::$controller->interactive) {
 
                         if ($cmdName === 'prompt' || $cmdName === 'select') {
                             // Note: options parameter works differently between prompt and select methods
@@ -197,18 +200,18 @@ class TaskRunner {
 
                         if ($cmdName === 'prompt') {
                             if (empty($options['default'])) {
-                                $options['default'] = $controller->getParamVal($varName, $params);
+                                $options['default'] = self::$controller->getParamVal($varName, $params);
                             }
 
-                            $params[$varName] = $controller->prompt($text, $options);
+                            $params[$varName] = self::$controller->prompt($text, $options);
                         }
                         elseif ($cmdName === 'select') {
                             /** @noinspection PhpUndefinedVariableInspection */
-                            $params[$varName] = $controller->select($text, $options);
+                            $params[$varName] = self::$controller->select($text, $options);
                         }
                         elseif ($cmdName === 'confirm') {
                             $confirmDefault = (!empty($functionParams[1]) ? $functionParams[1] : false); // default
-                            $params[$varName] = $controller->confirm($text, $confirmDefault);
+                            $params[$varName] = self::$controller->confirm($text, $confirmDefault);
                         }
                     }
 
@@ -217,10 +220,10 @@ class TaskRunner {
                 case 'if':
                     $result = (!empty($functionParams[0]) ? eval('return '.$functionParams[0].';') : false);
 
-                    $controller->stdout('IF result: '.var_export($result, true)."\n", Console::FG_PURPLE);
+                    self::$controller->stdout('IF result: '.var_export($result, true)."\n", Console::FG_PURPLE);
 
                     if ($result && !empty($functionParams[1]) && is_array($functionParams[1])) {
-                        self::_process($controller, $functionParams[1]);
+                        self::_process($functionParams[1]);
                     }
 
                     break;
@@ -228,11 +231,11 @@ class TaskRunner {
                 case 'recipe':
                     $recipeName = (!empty($functionParams[0]) ? $functionParams[0] : '');
                     $recipeTarget = (!empty($functionParams[1]) ? $functionParams[1] : '');
-                    self::_runRecipe($controller, $recipeName, $recipeTarget);
+                    self::_runRecipe($recipeName, $recipeTarget);
                     break;
 
                 default:
-                    self::_runCommand($controller, $cmdName, $functionParams);
+                    self::_runCommand($cmdName, $functionParams);
                     break;
             }
 
@@ -311,22 +314,22 @@ class TaskRunner {
         return $reqs;
     }
 
-    private static function _runCommand(BaseConsoleController $controller, $cmdName, $functionParams) {
+    private static function _runCommand($cmdName, $functionParams) {
 
         $command = self::_getCommand($cmdName);
         if ($command) {
             /** @noinspection PhpUndefinedMethodInspection */
-            $command::run($controller, $functionParams, self::$_params);
+            $command::run($functionParams, self::$_params);
         }
 
     }
 
-    private static function _setAliases(BaseConsoleController $controller) {
-        Yii::setAlias('@workspace', $controller->workspace);
-        Yii::setAlias('@buildScripts', $controller->workspace.'/'.$controller->getScriptFolder());
+    private static function _setAliases() {
+        Yii::setAlias('@workspace', self::$controller->workspace);
+        Yii::setAlias('@buildScripts', self::$controller->workspace.'/'.self::$controller->getScriptFolder());
     }
 
-    private static function _loadRequirements(BaseConsoleController $controller, $reqs) {
+    private static function _loadRequirements($reqs) {
 
 
         foreach ($reqs as $reqId) {
@@ -354,10 +357,10 @@ class TaskRunner {
                         ];
 
                         if ($commandReqs) {
-                            $controller->attachBehavior($reqId, $commandReqs);
+                            self::$controller->attachBehavior($reqId, $commandReqs);
                             /** @noinspection PhpUndefinedMethodInspection */
-                            $controller->extraOptions = array_merge(
-                                $controller->extraOptions,
+                            self::$controller->extraOptions = array_merge(
+                                self::$controller->extraOptions,
                                 $commandReqs::getCommandOptions()
                             );
                         }
@@ -365,7 +368,7 @@ class TaskRunner {
 
                     case 'recipe':
                         self::$_loadedRequirements[$reqId] = ['type' => $type];
-                        self::_loadRecipe($controller, $requirement);
+                        self::_loadRecipe($requirement);
                         break;
 
                     default:
@@ -381,10 +384,8 @@ class TaskRunner {
      * current build file.
      * Note: target specific parameters / requirements should be checked from the run method
      * of the command.
-     *
-     * @param BaseConsoleController $controller
      */
-    private static function _checkAllRequirements(BaseConsoleController $controller) {
+    private static function _checkAllRequirements() {
         foreach (self::$_loadedRequirements as $reqId=>$reqInfo) {
 
             switch ($reqInfo['type']) {
@@ -393,23 +394,23 @@ class TaskRunner {
                         !empty($reqInfo['reqsObject'])
                         && method_exists($reqInfo['reqsObject'], 'checkRequirements')
                     ) {
-                        $reqInfo['reqsObject']::checkRequirements($controller, self::$_params);
+                        $reqInfo['reqsObject']::checkRequirements(self::$_params);
                     }
                     break;
             }
         }
     }
 
-    private static function _setParamsFromOptions(BaseConsoleController $controller) {
+    private static function _setParamsFromOptions() {
         $params = & self::$_params;
 
-        $allOptions = array_merge($controller->options(''), $controller->extraOptions);
-        $providedOptions = $controller->getProvidedOptions();
+        $allOptions = array_merge(self::$controller->options(''), self::$controller->extraOptions);
+        $providedOptions = self::$controller->getProvidedOptions();
 
         foreach ($allOptions as $optName) {
             if (isset($providedOptions[$optName]) && isset($params[$optName])) {
-                $params[$optName] = $controller->$optName;
-                $controller->$optName = null;
+                $params[$optName] = self::$controller->$optName;
+                self::$controller->$optName = null;
             }
         }
     }
@@ -462,4 +463,4 @@ class TaskRunner {
         return $res;
     }
 
-} 
+}

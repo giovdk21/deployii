@@ -11,13 +11,12 @@ namespace app\lib\commands;
 
 use app\lib\TaskRunner;
 use app\lib\BaseCommand;
-use app\lib\BaseConsoleController;
 use yii\console\Exception;
 use Yii;
 
 class RmCommand extends BaseCommand {
 
-    public static function run(BaseConsoleController $controller, & $cmdParams, & $params) {
+    public static function run(& $cmdParams, & $params) {
 
         $filename = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
 
@@ -25,13 +24,13 @@ class RmCommand extends BaseCommand {
             throw new Exception('rm: filename cannot be empty');
         }
 
-        $controller->stdout('Removing file: '.$filename);
+        TaskRunner::$controller->stdout('Removing file: '.$filename);
 
-        if (!$controller->dryRun) {
+        if (!TaskRunner::$controller->dryRun) {
             @unlink($filename);
         }
 
-        $controller->stdout("\n");
+        TaskRunner::$controller->stdout("\n");
         return true;
     }
 
