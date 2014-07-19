@@ -282,7 +282,10 @@ class TaskRunner {
                     //self::$controller->stdout('IF result: '.var_export($result, true)."\n", Console::FG_PURPLE);
 
                     if ($result && !empty($functionParams[1]) && is_array($functionParams[1])) {
-                        self::_process($functionParams[1]);
+                        self::_process($functionParams[1]); // "if" code block
+                    }
+                    elseif (!$result && !empty($functionParams[2]) && is_array($functionParams[2])) {
+                        self::_process($functionParams[2]); // "else" code block
                     }
 
                     break;
