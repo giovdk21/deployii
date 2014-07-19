@@ -17,7 +17,7 @@ return [
 
     'targets' => [
         'default' => [
-            ['out', 'Just a test...', Console::FG_YELLOW],
+            ['out', 'Built-in recipe example', Console::FG_CYAN],
         ],
     ],
 

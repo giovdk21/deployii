@@ -27,8 +27,13 @@ class TaskRunner {
         /** @noinspection PhpIncludeInspection */
         self::$_buildScript = require($buildFile);
 
+        // Set default aliases
+        self::_setAliases($controller);
+
         // Load requirements and initialise the extra parameters:
-        self::_loadRequirements($controller);
+        if (!empty(self::$_buildScript['require'])) {
+            self::_loadRequirements($controller, self::$_buildScript['require']);
+        }
         $controller->initExtraParams();
 
 
@@ -41,9 +46,6 @@ class TaskRunner {
 
 
         self::_checkAllRequirements($controller);
-
-        // Set default aliases
-        self::_setAliases($controller);
     }
 
     public static function run(BaseConsoleController $controller, $target = '') {
@@ -68,6 +70,61 @@ class TaskRunner {
     private static function _runTarget(BaseConsoleController $controller, $targetScript, $targetName = '') {
         $controller->stdout("Running ".$targetName."...\n", Console::FG_GREEN, Console::BOLD);
         self::_process($controller, $targetScript);
+    }
+
+    private static function _loadRecipe(BaseConsoleController $controller, $recipeName, $userRecipe = false) {
+        $recipeScript = false;
+
+        $recipeClass = ucfirst($recipeName) . 'Recipe';
+
+        if (!$userRecipe) {
+            $recipesDir = __DIR__ . '/recipes';
+        }
+        else {
+            $recipesDir = Yii::getAlias('@buildScripts/recipes');
+        }
+
+        $recipeFile = $recipesDir . '/' . $recipeClass . '.php';
+
+        if (file_exists($recipeFile)) {
+            /** @noinspection PhpIncludeInspection */
+            $recipeScript = require($recipeFile);
+        }
+        elseif (!$userRecipe) {
+            $recipeScript = self::_loadRecipe($controller, $recipeName, true);
+        }
+
+        // Load requirements and initialise the extra parameters:
+        if (!empty($recipeScript['require'])) {
+            self::_loadRequirements($controller, $recipeScript['require']);
+        }
+
+        self::$_recipes[$recipeName] = $recipeScript;
+        return $recipeScript;
+    }
+
+    private static function _runRecipe(
+        BaseConsoleController $controller, $recipeName, $recipeTarget=''
+    ) {
+        $recipeTarget = (empty($recipeTarget) ? 'default' : $recipeTarget);
+
+        if (
+            empty($recipeName)
+            || empty(self::$_recipes[$recipeName])
+            || !is_array(self::$_recipes[$recipeName])
+            || !isset(self::$_recipes[$recipeName]['targets'])
+            || empty(self::$_recipes[$recipeName]['targets'][$recipeTarget])
+        ) {
+            throw new Exception("Invalid recipe / target: {$recipeName} [{$recipeTarget}]");
+        }
+
+        $recipeScript = self::$_recipes[$recipeName]['targets'][$recipeTarget];
+
+        $controller->stdout(
+            "Running recipe: {$recipeName} [{$recipeTarget}]...\n",
+            Console::FG_GREEN, Console::BOLD
+        );
+        self::_process($controller, $recipeScript);
     }
 
     private static function _process(BaseConsoleController $controller, $script) {
@@ -157,6 +214,12 @@ class TaskRunner {
 
                     break;
 
+                case 'recipe':
+                    $recipeName = (!empty($functionParams[0]) ? $functionParams[0] : '');
+                    $recipeTarget = (!empty($functionParams[1]) ? $functionParams[1] : '');
+                    self::_runRecipe($controller, $recipeName, $recipeTarget);
+                    break;
+
                 default:
                     self::_runCommand($controller, $cmdName, $functionParams);
                     break;
@@ -197,15 +260,27 @@ class TaskRunner {
         return self::parseStringParams(Yii::getAlias($path));
     }
 
-    private static function _getCommand($cmdName) {
+    private static function _getCommand($cmdName, $userCommand = false) {
         $command = false;
-        $commandsDir = __DIR__.'/commands';
 
         $commandClass = ucfirst($cmdName).'Command';
+
+        if (!$userCommand) {
+            $commandsDir = __DIR__.'/commands';
+            $baseNamespace = 'app\\lib\\commands\\';
+        }
+        else {
+            $commandsDir = Yii::getAlias('@buildScripts/commands');
+            $baseNamespace = 'buildScripts\\commands\\';
+        }
+
         $commandFile = $commandsDir.'/'.$commandClass.'.php';
 
-        if (file_exists($commandFile) && method_exists('app\\lib\\commands\\'.$commandClass, 'run')) {
-            $command = 'app\\lib\\commands\\'.$commandClass;
+        if (file_exists($commandFile) && method_exists($baseNamespace.$commandClass, 'run')) {
+            $command = $baseNamespace.$commandClass;
+        }
+        elseif (!$userCommand) {
+            $command = self::_getCommand($cmdName, true);
         }
 
         return $command;
@@ -237,43 +312,56 @@ class TaskRunner {
 
     private static function _setAliases(BaseConsoleController $controller) {
         Yii::setAlias('@workspace', $controller->workspace);
-        Yii::setAlias('@scripts', $controller->workspace.'/'.$controller->getScriptFolder());
+        Yii::setAlias('@buildScripts', $controller->workspace.'/'.$controller->getScriptFolder());
     }
 
-    private static function _loadRequirements(BaseConsoleController $controller) {
+    private static function _loadRequirements(BaseConsoleController $controller, $reqs) {
 
-        if (!empty(self::$_buildScript['require'])) {
 
-            foreach (self::$_buildScript['require'] as $requirement => $type) {
+        foreach ($reqs as $reqId) {
 
-                $reqId = $type.'_'.$requirement;
+            $reqInfo = [];
+            preg_match('/(.*)(?:--(\w+)$)/', $reqId, $reqInfo);
 
-                if (!isset(self::$_loadedRequirements[$reqId])) {
-
-                    switch ($type) {
-                        case 'command':
-                            $commandReqs = self::_getReqs($requirement);
-
-                            if ($commandReqs) {
-                                $controller->attachBehavior($reqId, $commandReqs);
-                                /** @noinspection PhpUndefinedMethodInspection */
-                                $controller->extraOptions = array_merge(
-                                    $controller->extraOptions,
-                                    $commandReqs::getCommandOptions()
-                                );
-                            }
-
-                            self::$_loadedRequirements[$reqId] = $commandReqs;
-                            break;
-
-                        case 'recipe':
-                            // TODO: implement recipes (self::_loadRecipe() (built in + user))
-                            self::$_loadedRequirements[$reqId] = null;
-                            break;
-                    }
-                }
+            if (empty($reqInfo[1]) || empty($reqInfo[2])) {
+                throw new Exception("Invalid requirement: ".$reqId);
             }
 
+            $requirement = $reqInfo[1];
+            $type = $reqInfo[2];
+
+
+            if (!isset(self::$_loadedRequirements[$reqId])) {
+
+                switch ($type) {
+                    case 'command':
+                        $commandReqs = self::_getReqs($requirement);
+
+                        self::$_loadedRequirements[$reqId] = [
+                            'type' => $type,
+                            'reqsObject' => $commandReqs
+                        ];
+
+                        if ($commandReqs) {
+                            $controller->attachBehavior($reqId, $commandReqs);
+                            /** @noinspection PhpUndefinedMethodInspection */
+                            $controller->extraOptions = array_merge(
+                                $controller->extraOptions,
+                                $commandReqs::getCommandOptions()
+                            );
+                        }
+                        break;
+
+                    case 'recipe':
+                        self::$_loadedRequirements[$reqId] = ['type' => $type];
+                        self::_loadRecipe($controller, $requirement);
+                        break;
+
+                    default:
+                        throw new Exception("Invalid requirement: ".$type);
+                        break;
+                }
+            }
         }
     }
 
@@ -286,10 +374,17 @@ class TaskRunner {
      * @param BaseConsoleController $controller
      */
     private static function _checkAllRequirements(BaseConsoleController $controller) {
-        foreach (self::$_loadedRequirements as $reqId=>$commandReqs) {
+        foreach (self::$_loadedRequirements as $reqId=>$reqInfo) {
 
-            if (!empty($commandReqs) && method_exists($commandReqs, 'checkRequirements')) {
-                $commandReqs::checkRequirements($controller, self::$_params);
+            switch ($reqInfo['type']) {
+                case 'command':
+                    if (
+                        !empty($reqInfo['reqsObject'])
+                        && method_exists($reqInfo['reqsObject'], 'checkRequirements')
+                    ) {
+                        $reqInfo['reqsObject']::checkRequirements($controller, self::$_params);
+                    }
+                    break;
             }
         }
     }
