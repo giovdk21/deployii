@@ -30,6 +30,14 @@ class TaskRunner {
         // Set default aliases
         self::_setAliases($controller);
 
+        // Check script compatibility:
+        if (!empty(self::$_buildScript['deployiiVersion'])) {
+            VersionManager::checkBuildVersion(self::$_buildScript['deployiiVersion']);
+        }
+        else {
+            throw new Exception('Please specify the "deployiiVersion" in your build script');
+        }
+
         // Load requirements and initialise the extra parameters:
         if (!empty(self::$_buildScript['require'])) {
             self::_loadRequirements($controller, self::$_buildScript['require']);
