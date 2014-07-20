@@ -113,29 +113,6 @@ class BaseConsoleController extends Controller {
         return 'deployii';
     }
 
-    /**
-     * Get the requested parameter value from the build parameters
-     * or from the controller properties (CLI options)
-     *
-     * @param string $name
-     * @param array  $buildParams
-     *
-     * @return mixed|null
-     */
-    public function getParamVal($name, & $buildParams) {
-        $res = null;
-
-        if (isset($buildParams[$name])) {
-            $res = $buildParams[$name];
-        }
-        elseif ($this->hasProperty($name)) {
-            $res = $this->$name;
-        }
-
-        return $res;
-    }
-
-
     public function getCommandOptions() {
         die('This method must be called statically from the command requirements behavior');
     }

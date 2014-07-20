@@ -257,8 +257,8 @@ class TaskRunner {
                         }
 
                         if ($cmdName === 'prompt') {
-                            if (empty($options['default'])) {
-                                $options['default'] = self::$controller->getParamVal($varName, $params);
+                            if (empty($options['default']) && !empty($params[$varName])) {
+                                $options['default'] = $params[$varName];
                             }
 
                             $params[$varName] = self::$controller->prompt($text, $options);

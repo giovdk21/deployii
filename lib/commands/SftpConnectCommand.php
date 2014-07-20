@@ -27,13 +27,13 @@ class SftpConnectCommand extends BaseCommand {
         $res = false;
         $connectionId = (!empty($cmdParams[0]) ? $cmdParams[0] : '');
 
-        $host = $controller->getParamVal('sftpHost', $params);
-        $username = $controller->getParamVal('sftpUsername', $params);
-        $password = $controller->getParamVal('sftpPassword', $params);
-        $port = $controller->getParamVal('sftpPort', $params);
-        $authMethod = $controller->getParamVal('sftpAuthMethod', $params);
-        $keyFile = $controller->getParamVal('sftpKeyFile', $params);
-        $keyPassword = $controller->getParamVal('sftpKeyPassword', $params);
+        $host = $params['sftpHost'];
+        $username = $params['sftpUsername'];
+        $password = $params['sftpPassword'];
+        $port = $params['sftpPort'];
+        $authMethod = $params['sftpAuthMethod'];
+        $keyFile = $params['sftpKeyFile'];
+        $keyPassword = $params['sftpKeyPassword'];
 
 
         if (empty($connectionId)) {
