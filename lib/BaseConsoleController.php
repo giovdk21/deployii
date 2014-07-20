@@ -23,10 +23,8 @@ class BaseConsoleController extends Controller {
     /** @var string path to the project workspace */
     public $workspace;
 
-    /** @var array extra command line options */
-    public $extraOptions = [];
-    /** @var array extra parameters storage */
-    private $_extraParams = [];
+    /** @var array extra command line options values */
+    public $extraParams = [];
     /** @var array list of options provided from command line */
     private $_providedOptions = [];
 
@@ -51,7 +49,7 @@ class BaseConsoleController extends Controller {
 
     /**
      * Extending runAction to handle extra params loaded dynamically
-     * by (task) commands requirements
+     * by (task) commands requirements or defined in the build script
      *
      * @inheritdoc
      */
@@ -72,7 +70,9 @@ class BaseConsoleController extends Controller {
                     }
 
                     if (!in_array($name, $options, true)) {
-                        $this->_extraParams[$name] = $value;
+                        if ($value !== '') {
+                            $this->extraParams[$name] = $value;
+                        }
                         unset($params[$name]);
                     }
                 }
@@ -95,39 +95,12 @@ class BaseConsoleController extends Controller {
     }
 
     /**
-     * Getter for $this->_extraParams
-     *
-     * @return array stored extra parameters values
-     */
-    public function getExtraParams() {
-        return $this->_extraParams;
-    }
-
-    /**
      * Getter for $this->_providedOptions
      *
      * @return array list of options provided from command line
      */
     public function getProvidedOptions() {
         return $this->_providedOptions;
-    }
-
-    /**
-     * Does what runAction does for normal parameters but for the extra ones.
-     *
-     * Extra parameters are loaded dynamically by commands requirements and are initialised
-     * after every requirement has been processed from the TaskRunner::init() method.
-     */
-    public function initExtraParams() {
-        $params = $this->getExtraParams();
-
-        foreach ($params as $name => $value) {
-            if (in_array($name, $this->extraOptions, true) && $value !== '') {
-                $default = $this->$name;
-                $this->$name = is_array($default) ? preg_split('/\s*,\s*/', $value) : $value;
-            }
-        }
-
     }
 
     /**
@@ -162,5 +135,13 @@ class BaseConsoleController extends Controller {
         return $res;
     }
 
+
+    public function getCommandOptions() {
+        die('This method must be called statically from the command requirements behavior');
+    }
+
+    public function checkRequirements() {
+        die('This method must be called statically from the command requirements behavior');
+    }
 
 } 

@@ -34,7 +34,7 @@ class TaskRunner {
      * - check that the user defined commands and recipes do not override the built-in ones
      * - load requirements and initialises the extra parameters
      * - load default parameters from build file
-     * - self::_setParamsFromOptions() // TODO
+     * - overwrite script parameters with values passed from the command line
      * - check commands global requirements to make sure that all the commands can be ran
      *
      * @param BaseConsoleController $controller The controller which initialises the TaskRunner
@@ -69,7 +69,6 @@ class TaskRunner {
         if (!empty(self::$_buildScript['require'])) {
             self::_loadRequirements(self::$_buildScript['require']);
         }
-        self::$controller->initExtraParams();
 
 
         // Load default parameters from build file:
@@ -77,9 +76,10 @@ class TaskRunner {
             self::$_params = array_merge(self::$_params, self::$_buildScript['params']);
         }
 
+        // overwrite script parameters with values passed from the command line:
         self::_setParamsFromOptions();
 
-
+        // check commands global requirements to make sure that all the commands can be ran:
         self::_checkAllRequirements();
     }
 
@@ -471,11 +471,17 @@ class TaskRunner {
 
                         if ($commandReqs) {
                             self::$controller->attachBehavior($reqId, $commandReqs);
+
                             /** @noinspection PhpUndefinedMethodInspection */
-                            self::$controller->extraOptions = array_merge(
-                                self::$controller->extraOptions,
-                                $commandReqs::getCommandOptions()
-                            );
+                            $commandOptions = $commandReqs::getCommandOptions();
+
+                            foreach ($commandOptions as $cmdOptionName=>$cmdOptionDefault) {
+                                // set the value of the extra parameter, if not already set
+                                // (if the value is not passed as a command line option)
+                                if (!isset(self::$controller->extraParams[$cmdOptionName])) {
+                                    self::$controller->extraParams[$cmdOptionName] = $cmdOptionDefault;
+                                }
+                            }
                         }
                         break;
 
@@ -517,17 +523,29 @@ class TaskRunner {
     /**
      * If an option passed via command line has also been defined as a script parameter,
      * the script parameter will be overwritten with the value passed from the command line.
+     *
+     * 1 - extraParams are stored if the option is passed via command line
+     * (in BaseConsoleController->runAction()) (empty strings are ignored).
+     * We know which information are coming from the command line
+     * (and not from the command defaults) thanks to self::$controller->getProvidedOptions();
+     * 2 - extraParams is then also populated by TaskRunner::_loadRequirements() with
+     * all the available (default) options defined by the <Command>Reqs class
+     * which are not been set from the command line (see point 1);
+     * 3 - if the extra parameter is not defined as a script parameter, or if we are overriding
+     * it from the command line, we initialise/overwrite the script parameter
+     * with the extra parameter.
      */
     private static function _setParamsFromOptions() {
-        $params = & self::$_params;
 
-        $allOptions = array_merge(self::$controller->options(''), self::$controller->extraOptions);
+        $params = & self::$_params;
         $providedOptions = self::$controller->getProvidedOptions();
 
-        foreach ($allOptions as $optName) {
-            if (isset($providedOptions[$optName]) && isset($params[$optName])) {
-                $params[$optName] = self::$controller->$optName;
-                self::$controller->$optName = null;
+        foreach (self::$controller->extraParams as $optName => $optVal) {
+            if (
+                !isset($params[$optName])
+                || (isset($providedOptions[$optName]) && isset($params[$optName]))
+            ) {
+                $params[$optName] = $optVal;
             }
         }
     }
