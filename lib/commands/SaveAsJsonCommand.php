@@ -1,6 +1,6 @@
 <?php
 /**
- * DeploYii - CopyCommand
+ * DeploYii - SaveAsJsonCommand
  *
  * @link https://github.com/giovdk21/deployii
  * @copyright Copyright (c) 2014 Giovanni Derks
@@ -14,8 +14,9 @@ use app\lib\TaskRunner;
 use yii\console\Exception;
 use yii\helpers\Console;
 use Yii;
+use yii\helpers\Json;
 
-class CopyCommand extends BaseCommand {
+class SaveAsJsonCommand extends BaseCommand {
 
     /**
      * @inheritdoc
@@ -23,17 +24,17 @@ class CopyCommand extends BaseCommand {
     public static function run(& $cmdParams, & $params) {
 
         $res = true;
-        $fileFrom = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
-        $fileTo = (!empty($cmdParams[1]) ? TaskRunner::parsePath($cmdParams[1]) : '');
+        $filename = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
+        $data = (!empty($cmdParams[1]) ? $cmdParams[1] : []);
 
-        if (empty($fileFrom) || empty($fileTo)) {
-            throw new Exception('copy: Origin and destination cannot be empty');
+        if (empty($filename)) {
+            throw new Exception('Please specify the path of the file you want to save to');
         }
 
-        TaskRunner::$controller->stdout("Copy file: \n  ".$fileFrom." to \n  ".$fileTo);
+        TaskRunner::$controller->stdout("Saving json file: \n  ".$filename);
 
         if (!TaskRunner::$controller->dryRun) {
-            $res = copy($fileFrom, $fileTo);
+            $res = file_put_contents($filename, Json::encode($data));
         }
         else {
             TaskRunner::$controller->stdout(' [dry run]', Console::FG_YELLOW);
