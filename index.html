@@ -31,7 +31,17 @@
         <hr>
 
         <section id="main_content">
-          <h2>
+          <p>(once ready) you'll be able to use DeploYii either as a simple task runner to automate your project setup and configuration
+or as deployment solution to package and deploy your code.</p>
+
+<h2>
+<a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
+
+<ul>
+<li>PHP 5.4+</li>
+<li><a href="https://getcomposer.org/">Composer</a></li>
+<li>Git (command line)</li>
+</ul><h2>
 <a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting started</h2>
 
 <ol>
@@ -42,7 +52,50 @@
 <li>run <code>./deployii fetch example_basic</code> to try out the basic example</li>
 <li>run <code>./deployii run workspace/example_basic_[...]/basicExample/</code> to run it again, without re-downloading it</li>
 <li>run <code>./deployii run workspace/example_basic_[...]/basicExample/ clean</code> to run the clean target</li>
-</ol>
+</ol><p><strong>For more information see the documentation on the <a href="https://github.com/giovdk21/deployii/wiki">wiki</a>.</strong></p>
+
+<div class="highlight highlight-php"><pre><span class="k">return</span> <span class="p">[</span>
+
+  <span class="s1">'deployiiVersion'</span> <span class="o">=&gt;</span> <span class="s1">'0.2.0'</span><span class="p">,</span>
+
+  <span class="s1">'require'</span> <span class="o">=&gt;</span> <span class="p">[],</span>
+
+  <span class="s1">'params'</span> <span class="o">=&gt;</span> <span class="p">[</span>
+    <span class="s1">'username'</span> <span class="o">=&gt;</span> <span class="s1">'world'</span><span class="p">,</span>
+  <span class="p">],</span>
+
+  <span class="s1">'targets'</span> <span class="o">=&gt;</span> <span class="p">[</span>
+    <span class="s1">'default'</span> <span class="o">=&gt;</span> <span class="p">[</span>
+      <span class="p">[</span><span class="s1">'out'</span><span class="p">,</span> <span class="s1">'Hello {{username}}!'</span><span class="p">],</span>
+    <span class="p">],</span>
+  <span class="p">],</span>
+<span class="p">];</span>
+</pre></div>
+
+<h2>
+<a name="available-features" class="anchor" href="#available-features"><span class="octicon octicon-link"></span></a>Available features</h2>
+
+<ul>
+<li>build script based on a simple PHP array</li>
+<li>fetch your code from git and store it into a unique workspace directory</li>
+<li>build script parameters</li>
+<li>build script requirements</li>
+<li>user defined command and recipes</li>
+<li>output text to the user</li>
+<li>require user input (prompt, confirm and select between multiple values)</li>
+<li>non interactive mode</li>
+<li>override default parameters with command line options</li>
+<li>save / load information from JSON files</li>
+<li>if / else statement</li>
+<li>replace placeholders with build parameters values (both strings and arrays are supported)</li>
+<li>check the build script compatibility with the current DeploYii version and return the list of non-backward compatible changes</li>
+</ul><h2>
+<a name="planned-features" class="anchor" href="#planned-features"><span class="octicon octicon-link"></span></a>Planned features</h2>
+
+<ul>
+<li>project management user interface</li>
+<li>database based project information</li>
+</ul>
         </section>
 
         <footer>
