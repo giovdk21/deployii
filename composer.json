@@ -2,7 +2,7 @@
 	"name": "giovdk21/deployii",
 	"description": "Yii powered task runner and deployment solution",
 	"keywords": ["php", "deploy", "deployment", "task runner", "yii2"],
-	"homepage": "http://www.deployii.com/",
+	"homepage": "http://www.deployii.com",
 	"type": "project",
 	"license": "BSD-3-Clause",
 	"support": {

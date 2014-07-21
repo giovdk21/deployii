@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "001fa823d904e99d65c481c6175a2fbe",
+    "hash": "2ce3592248ba1d7aa69c6b6f84f217c0",
     "packages": [
         {
             "name": "cebe/markdown",
@@ -172,12 +172,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "5a5d0fcf569f28e05a5a795fef9af101ece2c502"
+                "reference": "e0e67a602b44463e12ee30b05a99f97a9d60b18a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/5a5d0fcf569f28e05a5a795fef9af101ece2c502",
-                "reference": "5a5d0fcf569f28e05a5a795fef9af101ece2c502",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/e0e67a602b44463e12ee30b05a99f97a9d60b18a",
+                "reference": "e0e67a602b44463e12ee30b05a99f97a9d60b18a",
                 "shasum": ""
             },
             "require": {
@@ -186,6 +186,7 @@
             "require-dev": {
                 "phing/phing": "2.7.*",
                 "phpunit/phpunit": "4.0.*",
+                "sami/sami": "1.*",
                 "squizlabs/php_codesniffer": "1.*"
             },
             "suggest": {
@@ -261,7 +262,7 @@
                 "x.509",
                 "x509"
             ],
-            "time": "2014-07-12 10:08:34"
+            "time": "2014-07-20 21:31:29"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -270,12 +271,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "dc2182b4275f153469321b99c3a675ef3cffafd4"
+                "reference": "c2f8a5d3181736d107d6622a536fbdcd55436674"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/dc2182b4275f153469321b99c3a675ef3cffafd4",
-                "reference": "dc2182b4275f153469321b99c3a675ef3cffafd4",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/c2f8a5d3181736d107d6622a536fbdcd55436674",
+                "reference": "c2f8a5d3181736d107d6622a536fbdcd55436674",
                 "shasum": ""
             },
             "require": {
@@ -320,7 +321,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "http://symfony.com",
-            "time": "2014-07-08 12:21:41"
+            "time": "2014-07-09 09:06:26"
         },
         {
             "name": "symfony/process",
@@ -329,12 +330,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Process.git",
-                "reference": "b39c84a77bd722e459a5dde521167acbac2030c1"
+                "reference": "b3bb3b0e31de92bfe994389a841564aae73b1d23"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Process/zipball/b39c84a77bd722e459a5dde521167acbac2030c1",
-                "reference": "b39c84a77bd722e459a5dde521167acbac2030c1",
+                "url": "https://api.github.com/repos/symfony/Process/zipball/b3bb3b0e31de92bfe994389a841564aae73b1d23",
+                "reference": "b3bb3b0e31de92bfe994389a841564aae73b1d23",
                 "shasum": ""
             },
             "require": {
@@ -369,7 +370,7 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "http://symfony.com",
-            "time": "2014-07-08 12:21:41"
+            "time": "2014-07-09 09:06:26"
         },
         {
             "name": "twbs/bootstrap",
@@ -377,12 +378,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/twbs/bootstrap.git",
-                "reference": "2c540b7e330eb2e8ecedfd7d62fb603f96ee39db"
+                "reference": "a035ee59ae73510ebdb1064e59b4b16f1da9fc66"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twbs/bootstrap/zipball/2c540b7e330eb2e8ecedfd7d62fb603f96ee39db",
-                "reference": "2c540b7e330eb2e8ecedfd7d62fb603f96ee39db",
+                "url": "https://api.github.com/repos/twbs/bootstrap/zipball/a035ee59ae73510ebdb1064e59b4b16f1da9fc66",
+                "reference": "a035ee59ae73510ebdb1064e59b4b16f1da9fc66",
                 "shasum": ""
             },
             "replace": {
@@ -420,7 +421,7 @@
                 "responsive",
                 "web"
             ],
-            "time": "2014-07-13 07:08:25"
+            "time": "2014-07-20 05:11:07"
         },
         {
             "name": "yiisoft/jquery",
@@ -477,12 +478,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-framework.git",
-                "reference": "65b914f41b42400bae2bef999c184cd8cc3565e7"
+                "reference": "8be9ffbab549ddafcd7aae699b883f41eb1d16e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/65b914f41b42400bae2bef999c184cd8cc3565e7",
-                "reference": "65b914f41b42400bae2bef999c184cd8cc3565e7",
+                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/8be9ffbab549ddafcd7aae699b883f41eb1d16e3",
+                "reference": "8be9ffbab549ddafcd7aae699b883f41eb1d16e3",
                 "shasum": ""
             },
             "require": {
@@ -550,7 +551,7 @@
                 "framework",
                 "yii2"
             ],
-            "time": "2014-07-12 17:14:48"
+            "time": "2014-07-21 18:38:45"
         },
         {
             "name": "yiisoft/yii2-bootstrap",
@@ -558,12 +559,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-bootstrap.git",
-                "reference": "5517eeac747ad628a79ed8b16f05ec1966ef1c12"
+                "reference": "5e10e2833b960662f74c591cebb7506095baea7b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-bootstrap/zipball/5517eeac747ad628a79ed8b16f05ec1966ef1c12",
-                "reference": "5517eeac747ad628a79ed8b16f05ec1966ef1c12",
+                "url": "https://api.github.com/repos/yiisoft/yii2-bootstrap/zipball/5e10e2833b960662f74c591cebb7506095baea7b",
+                "reference": "5e10e2833b960662f74c591cebb7506095baea7b",
                 "shasum": ""
             },
             "require": {
@@ -583,9 +584,7 @@
             "authors": [
                 {
                     "name": "Qiang Xue",
-                    "email": "qiang.xue@gmail.com",
-                    "homepage": "http://www.yiiframework.com/",
-                    "role": "Founder and project lead"
+                    "email": "qiang.xue@gmail.com"
                 }
             ],
             "description": "The Twitter Bootstrap extension for the Yii framework",
@@ -593,7 +592,7 @@
                 "bootstrap",
                 "yii2"
             ],
-            "time": "2014-06-30 11:04:22"
+            "time": "2014-07-19 23:15:23"
         },
         {
             "name": "yiisoft/yii2-composer",
@@ -601,12 +600,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-composer.git",
-                "reference": "47dbc7c4a323086ba96dc4a9c3ff85c9f08d2615"
+                "reference": "e5614b13ee4c30c1e322aaf95855140580bc109a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-composer/zipball/47dbc7c4a323086ba96dc4a9c3ff85c9f08d2615",
-                "reference": "47dbc7c4a323086ba96dc4a9c3ff85c9f08d2615",
+                "url": "https://api.github.com/repos/yiisoft/yii2-composer/zipball/e5614b13ee4c30c1e322aaf95855140580bc109a",
+                "reference": "e5614b13ee4c30c1e322aaf95855140580bc109a",
                 "shasum": ""
             },
             "require": {
@@ -628,9 +627,7 @@
             "authors": [
                 {
                     "name": "Qiang Xue",
-                    "email": "qiang.xue@gmail.com",
-                    "homepage": "http://www.yiiframework.com/",
-                    "role": "Founder and project lead"
+                    "email": "qiang.xue@gmail.com"
                 }
             ],
             "description": "The composer plugin for Yii extension installer",
@@ -639,7 +636,7 @@
                 "extension installer",
                 "yii2"
             ],
-            "time": "2014-07-03 12:33:09"
+            "time": "2014-07-19 19:39:03"
         }
     ],
     "packages-dev": [
@@ -767,12 +764,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-gii.git",
-                "reference": "b42d638192bb9b4b7d7e73e747dfcda9db4d9985"
+                "reference": "c50b66be57b5b666c6f8e660e9d9b2948255a64d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-gii/zipball/b42d638192bb9b4b7d7e73e747dfcda9db4d9985",
-                "reference": "b42d638192bb9b4b7d7e73e747dfcda9db4d9985",
+                "url": "https://api.github.com/repos/yiisoft/yii2-gii/zipball/c50b66be57b5b666c6f8e660e9d9b2948255a64d",
+                "reference": "c50b66be57b5b666c6f8e660e9d9b2948255a64d",
                 "shasum": ""
             },
             "require": {
@@ -804,7 +801,7 @@
                 "gii",
                 "yii2"
             ],
-            "time": "2014-07-09 23:54:30"
+            "time": "2014-07-17 16:31:56"
         }
     ],
     "aliases": [

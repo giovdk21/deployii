@@ -31,21 +31,6 @@ class BaseConsoleController extends Controller {
     /** @var array log messages */
     private static $_log = [];
 
-    /**
-     * Initialise the controller
-     */
-    public function init() {
-        parent::init();
-
-        $this->stdout(" Welcome to DeploYii ");
-        $this->stdout(DEPLOYII_VERSION, Console::FG_YELLOW);
-        $this->stdout("\n");
-        if (!DEPLOYII_STABLE) {
-            $this->stdout("Note: ", Console::FG_PURPLE);
-            $this->stdout("this version is not ready for production! Use it only for learning / testing purposes.");
-            $this->stdout("\n");
-        }
-    }
 
     /**
      * Extending runAction to handle extra params loaded dynamically
@@ -80,6 +65,28 @@ class BaseConsoleController extends Controller {
         }
 
         parent::runAction($id, $params);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeAction($action) {
+        if (parent::beforeAction($action)) {
+
+            $this->stdout(" Welcome to DeploYii ");
+            $this->stdout(DEPLOYII_VERSION, Console::FG_YELLOW);
+            $this->stdout("\n");
+            if (!DEPLOYII_STABLE) {
+                $this->stdout("Note: ", Console::FG_PURPLE);
+                $this->stdout("this version is not ready for production! Use it only for learning / testing purposes.");
+                $this->stdout("\n");
+            }
+
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     /**
