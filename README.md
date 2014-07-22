@@ -86,6 +86,7 @@ Planned features
 - command to fetch (clone) / update from git
 - command to self update DeploYii
 - codeception related commands
+- command to copy folders
 - commands to set files and folders permissions
 - other CI related commands
 - JS and CSS minification and concatenation
