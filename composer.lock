@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "2ce3592248ba1d7aa69c6b6f84f217c0",
+    "hash": "0a7a660f30b11ca197b20b74fab3a00e",
     "packages": [
         {
             "name": "cebe/markdown",
@@ -172,12 +172,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "e0e67a602b44463e12ee30b05a99f97a9d60b18a"
+                "reference": "a0a23cbaf105f104d24000d718d0d850cdf41c1f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/e0e67a602b44463e12ee30b05a99f97a9d60b18a",
-                "reference": "e0e67a602b44463e12ee30b05a99f97a9d60b18a",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/a0a23cbaf105f104d24000d718d0d850cdf41c1f",
+                "reference": "a0a23cbaf105f104d24000d718d0d850cdf41c1f",
                 "shasum": ""
             },
             "require": {
@@ -262,7 +262,7 @@
                 "x.509",
                 "x509"
             ],
-            "time": "2014-07-20 21:31:29"
+            "time": "2014-07-22 14:09:14"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -378,12 +378,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/twbs/bootstrap.git",
-                "reference": "a035ee59ae73510ebdb1064e59b4b16f1da9fc66"
+                "reference": "36483af92c2d0be97aa86f16ffcf5f67abf2ed11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twbs/bootstrap/zipball/a035ee59ae73510ebdb1064e59b4b16f1da9fc66",
-                "reference": "a035ee59ae73510ebdb1064e59b4b16f1da9fc66",
+                "url": "https://api.github.com/repos/twbs/bootstrap/zipball/36483af92c2d0be97aa86f16ffcf5f67abf2ed11",
+                "reference": "36483af92c2d0be97aa86f16ffcf5f67abf2ed11",
                 "shasum": ""
             },
             "replace": {
@@ -421,7 +421,7 @@
                 "responsive",
                 "web"
             ],
-            "time": "2014-07-20 05:11:07"
+            "time": "2014-07-22 05:48:38"
         },
         {
             "name": "yiisoft/jquery",
@@ -478,12 +478,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-framework.git",
-                "reference": "8be9ffbab549ddafcd7aae699b883f41eb1d16e3"
+                "reference": "e75313f972131a4d0b0126878f18312e74710dc4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/8be9ffbab549ddafcd7aae699b883f41eb1d16e3",
-                "reference": "8be9ffbab549ddafcd7aae699b883f41eb1d16e3",
+                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/e75313f972131a4d0b0126878f18312e74710dc4",
+                "reference": "e75313f972131a4d0b0126878f18312e74710dc4",
                 "shasum": ""
             },
             "require": {
@@ -551,7 +551,7 @@
                 "framework",
                 "yii2"
             ],
-            "time": "2014-07-21 18:38:45"
+            "time": "2014-07-22 19:06:14"
         },
         {
             "name": "yiisoft/yii2-bootstrap",
@@ -559,12 +559,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-bootstrap.git",
-                "reference": "5e10e2833b960662f74c591cebb7506095baea7b"
+                "reference": "b74f3b0d65f2650aac72a63c72db04e18e86a883"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-bootstrap/zipball/5e10e2833b960662f74c591cebb7506095baea7b",
-                "reference": "5e10e2833b960662f74c591cebb7506095baea7b",
+                "url": "https://api.github.com/repos/yiisoft/yii2-bootstrap/zipball/b74f3b0d65f2650aac72a63c72db04e18e86a883",
+                "reference": "b74f3b0d65f2650aac72a63c72db04e18e86a883",
                 "shasum": ""
             },
             "require": {
@@ -592,7 +592,7 @@
                 "bootstrap",
                 "yii2"
             ],
-            "time": "2014-07-19 23:15:23"
+            "time": "2014-07-22 04:10:23"
         },
         {
             "name": "yiisoft/yii2-composer",
@@ -811,6 +811,7 @@
     "stability-flags": {
         "phpseclib/phpseclib": 20
     },
+    "prefer-stable": false,
     "platform": {
         "php": ">=5.4.0"
     },
