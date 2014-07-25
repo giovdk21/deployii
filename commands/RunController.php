@@ -2,9 +2,9 @@
 /**
  * DeploYii - RunController
  *
- * @link https://github.com/giovdk21/deployii
+ * @link      https://github.com/giovdk21/deployii
  * @copyright Copyright (c) 2014 Giovanni Derks
- * @license https://github.com/giovdk21/deployii/blob/master/LICENSE
+ * @license   https://github.com/giovdk21/deployii/blob/master/LICENSE
  */
 
 namespace app\commands;
@@ -17,7 +17,7 @@ use app\lib\TaskRunner;
  * Run the build; if no target is specified, the "default" one will be ran.
  *
  * @author Giovanni Derks
- * @since 0.1
+ * @since  0.1
  */
 class RunController extends BaseConsoleController
 {
@@ -25,8 +25,8 @@ class RunController extends BaseConsoleController
     /**
      * This command echoes what you have entered as the message.
      *
-     * @param string     $workspace Path to the project workspace
-     * @param string     $target The target to be ran; if not specified "default" will be used
+     * @param string $workspace Path to the project workspace
+     * @param string $target    The target to be ran; if not specified "default" will be used
      *
      * @return int The exit code
      */
@@ -34,7 +34,7 @@ class RunController extends BaseConsoleController
     {
 
         $this->workspace = realpath($workspace);
-        $buildFile = $this->workspace . '/' . $this->getScriptFolder() . '/build.php'; // TODO: parametrise deployii folder name / path (relative to workspace)
+        $buildFile = $this->workspace . '/' . $this->getScriptFolder() . '/build.php';
 
         TaskRunner::init($this, $buildFile);
         $exitCode = TaskRunner::run($target);
@@ -43,6 +43,5 @@ class RunController extends BaseConsoleController
 
         return $exitCode;
     }
-
 
 }

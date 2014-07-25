@@ -2,9 +2,9 @@
 /**
  * DeploYii - LoadJsonCommand
  *
- * @link https://github.com/giovdk21/deployii
+ * @link      https://github.com/giovdk21/deployii
  * @copyright Copyright (c) 2014 Giovanni Derks
- * @license https://github.com/giovdk21/deployii/blob/master/LICENSE
+ * @license   https://github.com/giovdk21/deployii/blob/master/LICENSE
  */
 
 namespace app\lib\commands;
@@ -12,16 +12,17 @@ namespace app\lib\commands;
 use app\lib\BaseCommand;
 use app\lib\TaskRunner;
 use yii\console\Exception;
-use yii\helpers\Console;
 use Yii;
 use yii\helpers\Json;
 
-class LoadJsonCommand extends BaseCommand {
+class LoadJsonCommand extends BaseCommand
+{
 
     /**
      * @inheritdoc
      */
-    public static function run(& $cmdParams, & $params) {
+    public static function run(& $cmdParams, & $params)
+    {
 
         $res = true;
         $filename = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
@@ -32,13 +33,13 @@ class LoadJsonCommand extends BaseCommand {
             throw new Exception('Please specify the path of the file you want to load');
         }
 
-        TaskRunner::$controller->stdout("Loading json file: \n  ".$filename);
+        TaskRunner::$controller->stdout("Loading json file: \n  " . $filename);
 
-        $prefix = (!empty($prefix) ? $prefix.'_' : '');
+        $prefix = (!empty($prefix) ? $prefix . '_' : '');
 
         // initialise the parameters with the default values
-        foreach ($defaultValues as $key=>$value) {
-            $params[$prefix.$key] = $value;
+        foreach ($defaultValues as $key => $value) {
+            $params[$prefix . $key] = $value;
         }
 
         if (file_exists($filename)) {
@@ -46,11 +47,10 @@ class LoadJsonCommand extends BaseCommand {
 
             if (is_array($data)) {
                 // override the parameters with the loaded values
-                foreach ($data as $key=>$value) {
-                    $params[$prefix.$key] = $value;
+                foreach ($data as $key => $value) {
+                    $params[$prefix . $key] = $value;
                 }
-            }
-            else {
+            } else {
                 $res = false; // invalid content
             }
         }

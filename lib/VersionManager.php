@@ -5,9 +5,9 @@
  * The VersionManager is used to check the compatibility between the running version
  * of DeploYii and the version the build script has been created for.
  *
- * @link https://github.com/giovdk21/deployii
+ * @link      https://github.com/giovdk21/deployii
  * @copyright Copyright (c) 2014 Giovanni Derks
- * @license https://github.com/giovdk21/deployii/blob/master/LICENSE
+ * @license   https://github.com/giovdk21/deployii/blob/master/LICENSE
  */
 
 namespace app\lib;
@@ -15,10 +15,11 @@ namespace app\lib;
 
 use yii\console\Exception;
 
-class VersionManager {
+class VersionManager
+{
 
     /** @var array list of changes that break compatibility between DeploYii and the build script; newer on top */
-    private static  $_changeList = [
+    private static $_changeList = [
         // newer on top
         // '0.3' => ['...'],
         '0.2' => [
@@ -32,7 +33,8 @@ class VersionManager {
      *
      * @throws \yii\console\Exception if the build script version is outdated
      */
-    public static function checkBuildVersion($buildVersion) {
+    public static function checkBuildVersion($buildVersion)
+    {
         $changeLog = '';
 
         $changes = array_reverse(self::$_changeList);
@@ -41,7 +43,7 @@ class VersionManager {
 
             if (version_compare($version, $buildVersion, '>')) {
                 foreach ($list as $logMessage) {
-                    $changeLog.= " - [{$version}] ".$logMessage."\n";
+                    $changeLog .= " - [{$version}] " . $logMessage . "\n";
                 }
             }
         }
@@ -49,7 +51,7 @@ class VersionManager {
         if (!empty($changeLog)) {
             throw new Exception(
                 "Your build script is not compatible with DeploYii "
-                .DEPLOYII_VERSION.":\n".$changeLog
+                . DEPLOYII_VERSION . ":\n" . $changeLog
             );
         }
     }

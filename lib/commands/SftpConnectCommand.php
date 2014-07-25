@@ -2,9 +2,9 @@
 /**
  * DeploYii - SftpConnectCommand
  *
- * @link https://github.com/giovdk21/deployii
+ * @link      https://github.com/giovdk21/deployii
  * @copyright Copyright (c) 2014 Giovanni Derks
- * @license https://github.com/giovdk21/deployii/blob/master/LICENSE
+ * @license   https://github.com/giovdk21/deployii/blob/master/LICENSE
  */
 
 namespace app\lib\commands;
@@ -16,12 +16,14 @@ use yii\helpers\Console;
 use Yii;
 use Net_SFTP;
 
-class SftpConnectCommand extends BaseCommand {
+class SftpConnectCommand extends BaseCommand
+{
 
     /**
      * @inheritdoc
      */
-    public static function run(& $cmdParams, & $params) {
+    public static function run(& $cmdParams, & $params)
+    {
         $controller = TaskRunner::$controller;
 
         $res = false;
@@ -40,7 +42,7 @@ class SftpConnectCommand extends BaseCommand {
             throw new Exception('sftpConnect: Please specify a valid connection ID and host');
         }
 
-        $controller->stdout('Opening connection with '.$username.'@'.$host.':'.$port." ...\n");
+        $controller->stdout('Opening connection with ' . $username . '@' . $host . ':' . $port . " ...\n");
 
         if (!$controller->dryRun) {
             $sftp = new Net_SFTP($host, $port);
@@ -59,8 +61,7 @@ class SftpConnectCommand extends BaseCommand {
             if ($res) {
                 $controller->connections[$connectionId] = $sftp;
             }
-        }
-        else {
+        } else {
             $controller->stdout(' [dry run]', Console::FG_YELLOW);
         }
 

@@ -2,9 +2,9 @@
 /**
  * DeploYii - RmdirCommand
  *
- * @link https://github.com/giovdk21/deployii
+ * @link      https://github.com/giovdk21/deployii
  * @copyright Copyright (c) 2014 Giovanni Derks
- * @license https://github.com/giovdk21/deployii/blob/master/LICENSE
+ * @license   https://github.com/giovdk21/deployii/blob/master/LICENSE
  */
 
 namespace app\lib\commands;
@@ -15,12 +15,14 @@ use yii\console\Exception;
 use yii\helpers\FileHelper;
 use Yii;
 
-class RmdirCommand extends BaseCommand {
+class RmdirCommand extends BaseCommand
+{
 
     /**
      * @inheritdoc
      */
-    public static function run(& $cmdParams, & $params) {
+    public static function run(& $cmdParams, & $params)
+    {
 
         $path = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
 
@@ -28,7 +30,7 @@ class RmdirCommand extends BaseCommand {
             throw new Exception('rmdir: Path cannot be empty');
         }
 
-        TaskRunner::$controller->stdout('Removing directory: '.$path);
+        TaskRunner::$controller->stdout('Removing directory: ' . $path);
 
         if (!TaskRunner::$controller->dryRun) {
             FileHelper::removeDirectory($path);

@@ -2,9 +2,9 @@
 /**
  * DeploYii - BaseConsoleController
  *
- * @link https://github.com/giovdk21/deployii
+ * @link      https://github.com/giovdk21/deployii
  * @copyright Copyright (c) 2014 Giovanni Derks
- * @license https://github.com/giovdk21/deployii/blob/master/LICENSE
+ * @license   https://github.com/giovdk21/deployii/blob/master/LICENSE
  */
 
 namespace app\lib;
@@ -12,7 +12,8 @@ namespace app\lib;
 use yii\console\Controller;
 use yii\helpers\Console;
 
-class BaseConsoleController extends Controller {
+class BaseConsoleController extends Controller
+{
 
 
     /**
@@ -38,7 +39,8 @@ class BaseConsoleController extends Controller {
      *
      * @inheritdoc
      */
-    public function runAction($id, $params = []) {
+    public function runAction($id, $params = [])
+    {
 
         if (!empty($params)) {
             $options = $this->options($id);
@@ -48,8 +50,7 @@ class BaseConsoleController extends Controller {
                     if ($value !== '') {
                         if (!isset($this->_providedOptions[$name])) {
                             $this->_providedOptions[$name] = 1;
-                        }
-                        else {
+                        } else {
                             $this->_providedOptions[$name]++;
                         }
                     }
@@ -70,7 +71,8 @@ class BaseConsoleController extends Controller {
     /**
      * @inheritdoc
      */
-    public function beforeAction($action) {
+    public function beforeAction($action)
+    {
         if (parent::beforeAction($action)) {
 
             $this->stdout(" Welcome to DeploYii ");
@@ -83,8 +85,7 @@ class BaseConsoleController extends Controller {
             }
 
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -92,7 +93,8 @@ class BaseConsoleController extends Controller {
     /**
      * @inheritdoc
      */
-    public function options($actionId) {
+    public function options($actionId)
+    {
 
         $options = parent::options($actionId);
 
@@ -106,7 +108,8 @@ class BaseConsoleController extends Controller {
      *
      * @return array list of options provided from command line
      */
-    public function getProvidedOptions() {
+    public function getProvidedOptions()
+    {
         return $this->_providedOptions;
     }
 
@@ -116,15 +119,18 @@ class BaseConsoleController extends Controller {
      *
      * @return string Path of the script folder relative to $this->workspace
      */
-    public function getScriptFolder() {
+    public function getScriptFolder()
+    {
         return 'deployii';
     }
 
-    public function getCommandOptions() {
+    public function getCommandOptions()
+    {
         die('This method must be called statically from the command requirements behavior');
     }
 
-    public function checkRequirements() {
+    public function checkRequirements()
+    {
         die('This method must be called statically from the command requirements behavior');
     }
 

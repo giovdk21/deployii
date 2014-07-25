@@ -2,9 +2,9 @@
 /**
  * DeploYii - FetchController
  *
- * @link https://github.com/giovdk21/deployii
+ * @link      https://github.com/giovdk21/deployii
  * @copyright Copyright (c) 2014 Giovanni Derks
- * @license https://github.com/giovdk21/deployii/blob/master/LICENSE
+ * @license   https://github.com/giovdk21/deployii/blob/master/LICENSE
  */
 
 namespace app\commands;
@@ -20,7 +20,7 @@ use GitWrapper\GitException;
  * Fetch the requested project from git and run the build.
  *
  * @author Giovanni Derks
- * @since 0.1
+ * @since  0.1
  */
 class FetchController extends BaseConsoleController
 {
@@ -41,16 +41,16 @@ class FetchController extends BaseConsoleController
      *
      * @return int The exit code
      */
-    public function actionIndex($projectId) {
+    public function actionIndex($projectId)
+    {
         $exitCode = 0;
 
         // TODO: read info from the database
-        $projectInfo = (object)require(__DIR__.'/../projects_tmp/'.$projectId.'.php');
+        $projectInfo = (object)require(__DIR__ . '/../projects_tmp/' . $projectId . '.php');
         // ------------------------
 
 
-
-        $this->workspace = __DIR__.'/../workspace/'.$projectInfo->id."_".time();
+        $this->workspace = __DIR__ . '/../workspace/' . $projectInfo->id . "_" . time();
 
         $gitClone = false;
         try {
@@ -63,8 +63,7 @@ class FetchController extends BaseConsoleController
 
             // TODO: refactor using different variable for clone directory (workspace should include the optional rootFolder)
             $gitClone = $wrapper->cloneRepository($projectInfo->repo, $this->workspace, $gitOptions);
-        }
-        catch (GitException $e) {
+        } catch (GitException $e) {
             $this->stderr($e->getMessage(), Console::FG_RED);
             $exitCode = 1;
         }
@@ -75,14 +74,14 @@ class FetchController extends BaseConsoleController
 
         if ($gitClone && $this->run) {
 
-                $buildFile = $this->workspace.'/'.$this->getScriptFolder().'/build.php'; // TODO: parametrise deployii folder name / path (relative to workspace)
+            // TODO: parametrise deployii folder name / path (relative to workspace)
+            $buildFile = $this->workspace . '/' . $this->getScriptFolder() . '/build.php';
 
             if (file_exists($buildFile)) {
                 TaskRunner::init($this, $buildFile);
                 $exitCode = TaskRunner::run($this->target);
-            }
-            else {
-                $this->stderr("Build file not found: ".$buildFile, Console::FG_RED);
+            } else {
+                $this->stderr("Build file not found: " . $buildFile, Console::FG_RED);
                 $exitCode = 1;
             }
 
@@ -96,7 +95,8 @@ class FetchController extends BaseConsoleController
     /**
      * @inheritdoc
      */
-    public function options($actionId = '') {
+    public function options($actionId = '')
+    {
 
         $options = parent::options($actionId);
 

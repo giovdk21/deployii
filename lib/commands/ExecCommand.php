@@ -2,9 +2,9 @@
 /**
  * DeploYii - ExecCommand
  *
- * @link https://github.com/giovdk21/deployii
+ * @link      https://github.com/giovdk21/deployii
  * @copyright Copyright (c) 2014 Giovanni Derks
- * @license https://github.com/giovdk21/deployii/blob/master/LICENSE
+ * @license   https://github.com/giovdk21/deployii/blob/master/LICENSE
  */
 
 namespace app\lib\commands;
@@ -13,12 +13,14 @@ use app\lib\BaseCommand;
 use app\lib\TaskRunner;
 use yii\helpers\Console;
 
-class ExecCommand extends BaseCommand {
+class ExecCommand extends BaseCommand
+{
 
     /**
      * @inheritdoc
      */
-    public static function run(& $cmdParams, & $params) {
+    public static function run(& $cmdParams, & $params)
+    {
 
         $execOutput = [];
         $execResult = null;
@@ -26,27 +28,29 @@ class ExecCommand extends BaseCommand {
         $execParams = (!empty($cmdParams[1]) ? $cmdParams[1] : '');
         $execHiddenParams = (!empty($cmdParams[2]) ? $cmdParams[2] : ''); // not printed out
 
-        $cmdString = trim($execCommand.' '.$execParams);
-        $cmdFull = trim($execCommand.' '.$execParams.' '.$execHiddenParams);
+        $cmdString = trim($execCommand . ' ' . $execParams);
+        $cmdFull = trim($execCommand . ' ' . $execParams . ' ' . $execHiddenParams);
 
         if (!empty($execCommand)) {
             if (!TaskRunner::$controller->dryRun) {
                 exec($cmdFull, $execOutput, $execResult);
-            }
-            else {
+            } else {
                 $execResult = 0;
                 $execOutput = ['dry run mode: nothing really happened'];
             }
 
             if ($execResult !== 0) {
-                TaskRunner::$controller->stderr("Error running ".$cmdString." ({$execResult})\n", Console::FG_RED);
-            }
-            else {
+                TaskRunner::$controller->stderr("Error running " . $cmdString . " ({$execResult})\n", Console::FG_RED);
+            } else {
                 TaskRunner::$controller->stdout('Running shell command: ');
-                TaskRunner::$controller->stdout($cmdString."\n", Console::FG_YELLOW);
-                TaskRunner::$controller->stdout('---------------------------------------------------------------'."\n");
-                TaskRunner::$controller->stdout(implode("\n", $execOutput)."\n");
-                TaskRunner::$controller->stdout('---------------------------------------------------------------'."\n\n");
+                TaskRunner::$controller->stdout($cmdString . "\n", Console::FG_YELLOW);
+                TaskRunner::$controller->stdout(
+                    '---------------------------------------------------------------' . "\n"
+                );
+                TaskRunner::$controller->stdout(implode("\n", $execOutput) . "\n");
+                TaskRunner::$controller->stdout(
+                    '---------------------------------------------------------------' . "\n\n"
+                );
             }
         }
 

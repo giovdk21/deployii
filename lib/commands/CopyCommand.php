@@ -2,9 +2,9 @@
 /**
  * DeploYii - CopyCommand
  *
- * @link https://github.com/giovdk21/deployii
+ * @link      https://github.com/giovdk21/deployii
  * @copyright Copyright (c) 2014 Giovanni Derks
- * @license https://github.com/giovdk21/deployii/blob/master/LICENSE
+ * @license   https://github.com/giovdk21/deployii/blob/master/LICENSE
  */
 
 namespace app\lib\commands;
@@ -15,12 +15,14 @@ use yii\console\Exception;
 use yii\helpers\Console;
 use Yii;
 
-class CopyCommand extends BaseCommand {
+class CopyCommand extends BaseCommand
+{
 
     /**
      * @inheritdoc
      */
-    public static function run(& $cmdParams, & $params) {
+    public static function run(& $cmdParams, & $params)
+    {
 
         $res = true;
         $fileFrom = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
@@ -30,12 +32,11 @@ class CopyCommand extends BaseCommand {
             throw new Exception('copy: Origin and destination cannot be empty');
         }
 
-        TaskRunner::$controller->stdout("Copy file: \n  ".$fileFrom." to \n  ".$fileTo);
+        TaskRunner::$controller->stdout("Copy file: \n  " . $fileFrom . " to \n  " . $fileTo);
 
         if (!TaskRunner::$controller->dryRun) {
             $res = copy($fileFrom, $fileTo);
-        }
-        else {
+        } else {
             TaskRunner::$controller->stdout(' [dry run]', Console::FG_YELLOW);
         }
 
