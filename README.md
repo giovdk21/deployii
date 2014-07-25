@@ -4,6 +4,8 @@ DeploYii
 Fetch, setup, automate and deploy your projects!<br>
 ...powered by PHP & the Yii Framework.
 
+[![Latest Stable Version](https://poser.pugx.org/giovdk21/deployii/v/stable.svg)](https://packagist.org/packages/giovdk21/deployii) [![License](https://poser.pugx.org/giovdk21/deployii/license.svg)](https://packagist.org/packages/giovdk21/deployii)
+
 (once ready) you'll be able to use DeploYii either as a simple task runner to automate your project setup and configuration
 or as deployment solution to package and deploy your code.
 
@@ -95,3 +97,10 @@ Planned features
 - project management user interface
 - database based project information
 - etc.
+
+
+Community
+-------------
+
+* Chat: [![Gitter chat](https://badges.gitter.im/giovdk21/deployii.png)](https://gitter.im/giovdk21/deployii)
+* Forum thread: [DeploYii on the Yii forum](http://www.yiiframework.com/forum/index.php/topic/56289-deployii-task-runner-and-deployment-pre-release/)
