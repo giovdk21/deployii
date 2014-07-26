@@ -13,6 +13,7 @@ use app\lib\TaskRunner;
 use app\lib\BaseCommand;
 use yii\console\Exception;
 use Yii;
+use yii\helpers\Console;
 
 class RmCommand extends BaseCommand
 {
@@ -33,6 +34,8 @@ class RmCommand extends BaseCommand
 
         if (!TaskRunner::$controller->dryRun) {
             @unlink($filename);
+        } else {
+            TaskRunner::$controller->stdout(' [dry run]', Console::FG_YELLOW);
         }
 
         TaskRunner::$controller->stdout("\n");

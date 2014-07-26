@@ -329,6 +329,10 @@ class TaskRunner
                     $res = implode(', ', $var);
                 } elseif (is_string($var)) {
                     $res = $var;
+                } elseif (is_int($var) || is_double($var)) {
+                    $res = (string)$var;
+                } elseif (is_bool($var)) {
+                    $res = ($var ? 'true' : 'false');
                 } else {
                     $res = "[" . gettype($var) . "]";
                 }

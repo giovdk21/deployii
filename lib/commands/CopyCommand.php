@@ -14,6 +14,7 @@ use app\lib\TaskRunner;
 use yii\console\Exception;
 use yii\helpers\Console;
 use Yii;
+use yii\helpers\FileHelper;
 
 class CopyCommand extends BaseCommand
 {
@@ -32,7 +33,11 @@ class CopyCommand extends BaseCommand
             throw new Exception('copy: Origin and destination cannot be empty');
         }
 
-        TaskRunner::$controller->stdout("Copy file: \n  " . $fileFrom . " to \n  " . $fileTo);
+        if (is_dir($fileTo)) {
+            $fileTo = FileHelper::normalizePath($fileTo).DIRECTORY_SEPARATOR.basename($fileFrom);
+        }
+
+        TaskRunner::$controller->stdout("Copy file: \n  ".$fileFrom." to \n  ".$fileTo);
 
         if (!TaskRunner::$controller->dryRun) {
             $res = copy($fileFrom, $fileTo);

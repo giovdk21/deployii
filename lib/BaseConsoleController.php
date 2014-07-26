@@ -77,6 +77,9 @@ class BaseConsoleController extends Controller
 
             $this->stdout(" Welcome to DeploYii ");
             $this->stdout(DEPLOYII_VERSION, Console::FG_YELLOW);
+            if ($this->dryRun) {
+                $this->stdout(" [dry run]" , Console::FG_CYAN);
+            }
             $this->stdout("\n");
             if (!DEPLOYII_STABLE) {
                 $this->stdout("Note: ", Console::FG_PURPLE);

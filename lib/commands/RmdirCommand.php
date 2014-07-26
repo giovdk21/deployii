@@ -12,6 +12,7 @@ namespace app\lib\commands;
 use app\lib\BaseCommand;
 use app\lib\TaskRunner;
 use yii\console\Exception;
+use yii\helpers\Console;
 use yii\helpers\FileHelper;
 use Yii;
 
@@ -34,6 +35,8 @@ class RmdirCommand extends BaseCommand
 
         if (!TaskRunner::$controller->dryRun) {
             FileHelper::removeDirectory($path);
+        } else {
+            TaskRunner::$controller->stdout(' [dry run]', Console::FG_YELLOW);
         }
 
         TaskRunner::$controller->stdout("\n");
