@@ -104,7 +104,7 @@ class TaskRunner
         if (isset(self::$_buildScript['targets'][$target])) { // run the selected target
             TaskRunner::_runTarget(self::$_buildScript['targets'][$target], $target);
         } else {
-            self::$controller->stderr('Target not found: ' . $target, Console::FG_RED);
+            self::$controller->stderr('Target not found: '.$target, Console::FG_RED);
             $exitCode = 1;
         }
 
@@ -119,7 +119,7 @@ class TaskRunner
      */
     private static function _runTarget($targetScript, $targetName = '')
     {
-        self::$controller->stdout("Running " . $targetName . "...\n", Console::FG_GREEN, Console::BOLD);
+        self::$controller->stdout("Running ".$targetName."...\n", Console::FG_GREEN, Console::BOLD);
         self::_process($targetScript);
     }
 
@@ -139,15 +139,15 @@ class TaskRunner
     {
         $recipeScript = false;
 
-        $recipeClass = ucfirst($recipeName) . 'Recipe';
+        $recipeClass = ucfirst($recipeName).'Recipe';
 
         if (!$userRecipe) {
-            $recipesDir = __DIR__ . '/recipes';
+            $recipesDir = __DIR__.'/recipes';
         } else {
             $recipesDir = Yii::getAlias('@buildScripts/recipes');
         }
 
-        $recipeFile = $recipesDir . '/' . $recipeClass . '.php';
+        $recipeFile = $recipesDir.'/'.$recipeClass.'.php';
 
         if (file_exists($recipeFile)) {
             /** @noinspection PhpIncludeInspection */
@@ -223,14 +223,14 @@ class TaskRunner
                     ) {
                         self::run($targetName);
                     } else {
-                        self::$controller->stderr('Invalid target: ' . $targetName, Console::FG_RED);
+                        self::$controller->stderr('Invalid target: '.$targetName, Console::FG_RED);
                     }
                     break;
 
                 case 'out':
                     $function = [self::$controller, 'stdout'];
                     $functionParams[0] = (!empty($functionParams[0])
-                        ? self::parseStringParams($functionParams[0]) . "\n"
+                        ? self::parseStringParams($functionParams[0])."\n"
                         : ''
                     ); // Text to print
                     break;
@@ -238,7 +238,7 @@ class TaskRunner
                 case 'err':
                     $function = [self::$controller, 'stderr'];
                     $functionParams[0] = (!empty($functionParams[0])
-                        ? self::parseStringParams($functionParams[0]) . "\n"
+                        ? self::parseStringParams($functionParams[0])."\n"
                         : ''
                     ); // Text to print
                     $functionParams[1] = (!empty($functionParams[1]) ? $functionParams[1] : Console::FG_RED);
@@ -277,7 +277,7 @@ class TaskRunner
                     break;
 
                 case 'if':
-                    $result = (!empty($functionParams[0]) ? eval('return ' . $functionParams[0] . ';') : false);
+                    $result = (!empty($functionParams[0]) ? eval('return '.$functionParams[0].';') : false);
 
                     // TODO: log instead of print out:
                     //self::$controller->stdout('IF result: '.var_export($result, true)."\n", Console::FG_PURPLE);
@@ -334,13 +334,41 @@ class TaskRunner
                 } elseif (is_bool($var)) {
                     $res = ($var ? 'true' : 'false');
                 } else {
-                    $res = "[" . gettype($var) . "]";
+                    $res = "[".gettype($var)."]";
                 }
 
                 return $res;
             },
             $string
         );
+
+        return $string;
+    }
+
+    /**
+     * Extract path aliases from a string and replace them with the
+     * value from Yii::getAlias()
+     *
+     * @param string $string      the text to be parsed
+     * @param bool   $parseParams whether to also parse the string placeholders
+     *
+     * @return string
+     */
+    public static function parseStringAliases($string, $parseParams = true)
+    {
+
+        $string = preg_replace_callback(
+            '/(?:(?:^|[\\s=])(@[^\\s\\/\\\]+))/',
+            function (array $matches) {
+                $res = str_replace($matches[1], Yii::getAlias($matches[1]), $matches[0]);
+                return $res;
+            },
+            $string
+        );
+
+        if ($parseParams) {
+            $string = self::parseStringParams($string);
+        }
 
         return $string;
     }
@@ -373,20 +401,20 @@ class TaskRunner
     {
         $command = false;
 
-        $commandClass = ucfirst($cmdName) . 'Command';
+        $commandClass = ucfirst($cmdName).'Command';
 
         if (!$userCommand) {
-            $commandsDir = __DIR__ . '/commands';
+            $commandsDir = __DIR__.'/commands';
             $baseNamespace = 'app\\lib\\commands\\';
         } else {
             $commandsDir = Yii::getAlias('@buildScripts/commands');
             $baseNamespace = 'buildScripts\\commands\\';
         }
 
-        $commandFile = $commandsDir . '/' . $commandClass . '.php';
+        $commandFile = $commandsDir.'/'.$commandClass.'.php';
 
-        if (file_exists($commandFile) && method_exists($baseNamespace . $commandClass, 'run')) {
-            $command = $baseNamespace . $commandClass;
+        if (file_exists($commandFile) && method_exists($baseNamespace.$commandClass, 'run')) {
+            $command = $baseNamespace.$commandClass;
         } elseif (!$userCommand) {
             $command = self::_getCommand($cmdName, true);
         }
@@ -404,13 +432,13 @@ class TaskRunner
     private static function _getReqs($cmdName)
     {
         $reqs = false;
-        $commandsDir = __DIR__ . '/commands';
+        $commandsDir = __DIR__.'/commands';
 
-        $commandClass = ucfirst($cmdName) . 'Reqs';
-        $commandFile = $commandsDir . '/' . $commandClass . '.php';
+        $commandClass = ucfirst($cmdName).'Reqs';
+        $commandFile = $commandsDir.'/'.$commandClass.'.php';
 
         if (file_exists($commandFile)) {
-            $reqs = 'app\\lib\\commands\\' . $commandClass;
+            $reqs = 'app\\lib\\commands\\'.$commandClass;
         }
 
         return $reqs;
@@ -440,7 +468,7 @@ class TaskRunner
     private static function _setAliases()
     {
         Yii::setAlias('@workspace', self::$controller->workspace);
-        Yii::setAlias('@buildScripts', self::$controller->workspace . '/' . self::$controller->getScriptFolder());
+        Yii::setAlias('@buildScripts', self::$controller->workspace.'/'.self::$controller->getScriptFolder());
     }
 
     /**
@@ -460,7 +488,7 @@ class TaskRunner
             preg_match('/(.*)(?:--(\w+)$)/', $reqId, $reqInfo);
 
             if (empty($reqInfo[1]) || empty($reqInfo[2])) {
-                throw new Exception("Invalid requirement: " . $reqId);
+                throw new Exception("Invalid requirement: ".$reqId);
             }
 
             $requirement = $reqInfo[1];
@@ -500,7 +528,7 @@ class TaskRunner
                         break;
 
                     default:
-                        throw new Exception("Invalid requirement: " . $type);
+                        throw new Exception("Invalid requirement: ".$type);
                         break;
                 }
             }
@@ -574,11 +602,11 @@ class TaskRunner
 
         $buildScripts = Yii::getAlias('@buildScripts');
 
-        $builtInCommands = self::getLowercaseBaseNames(glob(__DIR__ . '/commands/*.php'));
-        $builtInRecipes = self::getLowercaseBaseNames(glob(__DIR__ . '/recipes/*.php'));
+        $builtInCommands = self::getLowercaseBaseNames(glob(__DIR__.'/commands/*.php'));
+        $builtInRecipes = self::getLowercaseBaseNames(glob(__DIR__.'/recipes/*.php'));
 
-        $userCommands = self::getLowercaseBaseNames(glob($buildScripts . '/commands/*.php'));
-        $userRecipes = self::getLowercaseBaseNames(glob($buildScripts . '/recipes/*.php'));
+        $userCommands = self::getLowercaseBaseNames(glob($buildScripts.'/commands/*.php'));
+        $userRecipes = self::getLowercaseBaseNames(glob($buildScripts.'/recipes/*.php'));
 
         $overridingCommands = array_intersect($builtInCommands, $userCommands);
         $overridingRecipes = array_intersect($builtInRecipes, $userRecipes);
@@ -587,7 +615,7 @@ class TaskRunner
         if (!empty($overridingCommands) || !empty($overridingRecipes)) {
             throw new Exception(
                 'You cannot override built-in commands or recipes: '
-                . trim(implode(", ", $overridingCommands) . ", " . implode(".", $overridingRecipes), ', ')
+                .trim(implode(", ", $overridingCommands).", ".implode(".", $overridingRecipes), ', ')
             );
         }
     }
