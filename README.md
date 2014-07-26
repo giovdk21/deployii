@@ -74,6 +74,7 @@ Available features
 - create folder
 - remove file
 - remove folder (recursive)
+- set files and folders permissions
 - path aliases to the workspace and the build script folders
 - parameters placeholders also work in paths
 - dry run mode
@@ -89,7 +90,6 @@ Planned features
 - command to fetch (clone) / update from git
 - command to self update DeploYii
 - codeception related commands
-- commands to set files and folders permissions
 - other CI related commands
 - JS and CSS minification and concatenation
 - build execution log
