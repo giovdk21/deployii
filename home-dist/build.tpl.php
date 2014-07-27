@@ -4,7 +4,7 @@ use yii\helpers\Console;
 
 return [
 
-    'deployiiVersion' => '0.3',
+    'deployiiVersion' => '{{deployiiVersion}}',
 
     'require'         => [],
 

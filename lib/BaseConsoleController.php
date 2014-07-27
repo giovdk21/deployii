@@ -9,6 +9,7 @@
 
 namespace app\lib;
 
+use Monolog\Logger;
 use yii\console\Controller;
 use yii\helpers\Console;
 
@@ -116,10 +117,29 @@ class BaseConsoleController extends Controller
         call_user_func_array(['parent', 'stderr'], $args);
     }
 
+    /**
+     * @param string $string
+     */
     public function warn($string) {
         Log::logger()->addWarning($string);
         $this->stdout('Warning: ', Console::FG_PURPLE, Console::BOLD);
         $this->stdout($string);
+    }
+
+    /**
+     * Log the given string and send it to stdout
+     *
+     * @param string $string
+     * @param int    $level (optional) if null is passed, level will be set to Logger::DEBUG
+     */
+    public function logStdout($string, $level = Logger::DEBUG)
+    {
+        $level = ($level === null ? Logger::DEBUG : $level);
+        Log::logger()->addRecord($level, trim($string));
+
+        $args = func_get_args();
+        unset($args[1]); // remove the $level parameter to be compatible with the stdout method
+        call_user_func_array(['parent', 'stdout'], $args);
     }
 
     /**
