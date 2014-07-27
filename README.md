@@ -77,6 +77,7 @@ Available features
 - set files and folders permissions
 - path aliases to the workspace and the build script folders
 - parameters placeholders also work in paths
+- build execution log
 - dry run mode
 
 
@@ -92,7 +93,6 @@ Planned features
 - codeception related commands
 - other CI related commands
 - JS and CSS minification and concatenation
-- build execution log
 - workspaces cleanup
 - project management user interface
 - database based project information
