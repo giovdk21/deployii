@@ -50,8 +50,12 @@ class TaskRunner
 
         self::$controller = $controller;
 
-        /** @noinspection PhpIncludeInspection */
-        self::$_buildScript = require($buildFile);
+        if (file_exists($buildFile)) {
+            /** @noinspection PhpIncludeInspection */
+            self::$_buildScript = require($buildFile);
+        } else {
+            throw new Exception('Build script not found: '.$buildFile);
+        }
 
         // Set default aliases
         self::_setAliases();
@@ -131,20 +135,23 @@ class TaskRunner
      * TODO: log warning message if the requested recipe is not found
      *
      * @param string $recipeName
-     * @param bool   $userRecipe whether to search inside the user build scripts folder
+     * @param bool   $globalRecipe whether to search inside the DeploYii home folder
+     * @param bool   $userRecipe   whether to search inside the user build scripts folder
      *
      * @return bool|mixed
      */
-    private static function _loadRecipe($recipeName, $userRecipe = false)
+    private static function _loadRecipe($recipeName, $globalRecipe = false, $userRecipe = false)
     {
         $recipeScript = false;
 
         $recipeClass = ucfirst($recipeName).'Recipe';
 
-        if (!$userRecipe) {
-            $recipesDir = __DIR__.'/recipes';
-        } else {
+        if ($globalRecipe && !$userRecipe) {
+            $recipesDir = Yii::getAlias('@home/recipes');
+        } elseif ($userRecipe) {
             $recipesDir = Yii::getAlias('@buildScripts/recipes');
+        } else {
+            $recipesDir = __DIR__.'/recipes';
         }
 
         $recipeFile = $recipesDir.'/'.$recipeClass.'.php';
@@ -152,8 +159,10 @@ class TaskRunner
         if (file_exists($recipeFile)) {
             /** @noinspection PhpIncludeInspection */
             $recipeScript = require($recipeFile);
-        } elseif (!$userRecipe) {
+        } elseif (!$globalRecipe && !$userRecipe) {
             $recipeScript = self::_loadRecipe($recipeName, true);
+        } elseif (!$userRecipe) {
+            $recipeScript = self::_loadRecipe($recipeName, false, true);
         }
 
         // Load requirements and initialise the extra parameters:
@@ -392,31 +401,38 @@ class TaskRunner
      * This method will first look for built-in commands and then for the user defined ones.
      * TODO: log warning message if the requested command is not found
      *
-     * @param string $cmdName     The name of the command
-     * @param bool   $userCommand whether to search inside the user build scripts folder
+     * @param string $cmdName       The name of the command
+     * @param bool   $globalCommand whether to search inside the DeploYii home folder
+     * @param bool   $userCommand   whether to search inside the user build scripts folder
      *
      * @return bool|string
      */
-    private static function _getCommand($cmdName, $userCommand = false)
+    private static function _getCommand($cmdName, $globalCommand = false, $userCommand = false)
     {
         $command = false;
 
         $commandClass = ucfirst($cmdName).'Command';
 
-        if (!$userCommand) {
-            $commandsDir = __DIR__.'/commands';
-            $baseNamespace = 'app\\lib\\commands\\';
-        } else {
+        if ($globalCommand && !$userCommand) {
+            $commandsDir = Yii::getAlias('@home/commands');
+            $baseNamespace = 'home\\commands\\';
+        } elseif ($userCommand) {
             $commandsDir = Yii::getAlias('@buildScripts/commands');
             $baseNamespace = 'buildScripts\\commands\\';
+        } else {
+            $commandsDir = __DIR__.'/commands';
+            $baseNamespace = 'app\\lib\\commands\\';
         }
 
         $commandFile = $commandsDir.'/'.$commandClass.'.php';
 
         if (file_exists($commandFile) && method_exists($baseNamespace.$commandClass, 'run')) {
             $command = $baseNamespace.$commandClass;
-        } elseif (!$userCommand) {
+        } elseif (!$globalCommand && !$userCommand) {
             $command = self::_getCommand($cmdName, true);
+        }
+        elseif (!$userCommand) {
+            $command = self::_getCommand($cmdName, false, true);
         }
 
         return $command;
@@ -469,6 +485,7 @@ class TaskRunner
     {
         Yii::setAlias('@workspace', self::$controller->workspace);
         Yii::setAlias('@buildScripts', self::$controller->workspace.'/'.self::$controller->getScriptFolder());
+        Yii::setAlias('@home', Shell::getHomeDir()); // DeploYii home directory
     }
 
     /**
@@ -543,6 +560,7 @@ class TaskRunner
      */
     private static function _checkAllRequirements()
     {
+        /** @noinspection PhpUnusedLocalVariableInspection */
         foreach (self::$_loadedRequirements as $reqId => $reqInfo) {
 
             switch ($reqInfo['type']) {
@@ -601,21 +619,41 @@ class TaskRunner
     {
 
         $buildScripts = Yii::getAlias('@buildScripts');
+        $home = Shell::getHomeDir();
 
         $builtInCommands = self::getLowercaseBaseNames(glob(__DIR__.'/commands/*.php'));
         $builtInRecipes = self::getLowercaseBaseNames(glob(__DIR__.'/recipes/*.php'));
 
-        $userCommands = self::getLowercaseBaseNames(glob($buildScripts.'/commands/*.php'));
-        $userRecipes = self::getLowercaseBaseNames(glob($buildScripts.'/recipes/*.php'));
+        $userGlobalCommands = self::getLowercaseBaseNames(glob($home.'/commands/*.php'));
+        $userGlobalRecipes = self::getLowercaseBaseNames(glob($home.'/recipes/*.php'));
+
+        $userBuildCommands = self::getLowercaseBaseNames(glob($buildScripts.'/commands/*.php'));
+        $userBuildRecipes = self::getLowercaseBaseNames(glob($buildScripts.'/recipes/*.php'));
+
+        $userCommands = array_merge($userBuildCommands, $userGlobalCommands);
+        $userRecipes = array_merge($userBuildRecipes, $userGlobalRecipes);
+
 
         $overridingCommands = array_intersect($builtInCommands, $userCommands);
         $overridingRecipes = array_intersect($builtInRecipes, $userRecipes);
-
 
         if (!empty($overridingCommands) || !empty($overridingRecipes)) {
             throw new Exception(
                 'You cannot override built-in commands or recipes: '
                 .trim(implode(", ", $overridingCommands).", ".implode(".", $overridingRecipes), ', ')
+            );
+        }
+
+
+        $overridingUserCommands = array_intersect($userGlobalCommands, $userBuildCommands);
+        $overridingUserRecipes = array_intersect($userGlobalRecipes, $userBuildRecipes);
+
+        if (!empty($overridingUserCommands) || !empty($overridingUserRecipes)) {
+            self::$controller->stdout('Warning: ', Console::FG_PURPLE, Console::BOLD);
+            self::$controller->stdout(
+                'You are overriding global commands or recipes: '
+                .trim(implode(", ", $overridingUserCommands).", ".implode(".", $overridingUserRecipes), ', ')
+                ."\n"
             );
         }
     }

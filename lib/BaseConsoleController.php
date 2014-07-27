@@ -71,6 +71,15 @@ class BaseConsoleController extends Controller
     /**
      * @inheritdoc
      */
+    public function init()
+    {
+        parent::init();
+        Shell::initHomeDir();
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function beforeAction($action)
     {
         if (parent::beforeAction($action)) {

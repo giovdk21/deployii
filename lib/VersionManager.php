@@ -14,18 +14,31 @@ namespace app\lib;
 
 
 use yii\console\Exception;
+use yii\helpers\Console;
 
 class VersionManager
 {
 
     /** @var array list of changes that break compatibility between DeploYii and the build script; newer on top */
-    private static $_changeList = [
+    private static $_buildChangeList = [
         // newer on top
         // '0.3' => ['...'],
         '0.2' => [
             'renamed @scripts alias to @buildScripts',
             'changed require list format from "name"=>"type" to "name--type"',
         ],
+    ];
+
+    /** @var array list of changes that need to be performed to keep the DeploYii home folder up to date */
+    private static $_homeChangeList = [
+//        '0.3' => [
+//            'add' => [],
+//            'mod' => [
+//                'config.php' => 'Added logger configuration parameters',
+//                'build.tpl.php' => 'Set deployiiVersion to 0.3',
+//            ],
+//            'rem' => [],
+//        ],
     ];
 
     /**
@@ -37,13 +50,13 @@ class VersionManager
     {
         $changeLog = '';
 
-        $changes = array_reverse(self::$_changeList);
+        $changes = array_reverse(self::$_buildChangeList);
 
         foreach ($changes as $version => $list) {
 
             if (version_compare($version, $buildVersion, '>')) {
                 foreach ($list as $logMessage) {
-                    $changeLog .= " - [{$version}] " . $logMessage . "\n";
+                    $changeLog .= " - [{$version}] ".$logMessage."\n";
                 }
             }
         }
@@ -51,9 +64,115 @@ class VersionManager
         if (!empty($changeLog)) {
             throw new Exception(
                 "Your build script is not compatible with DeploYii "
-                . DEPLOYII_VERSION . ":\n" . $changeLog
+                .DEPLOYII_VERSION.":\n".$changeLog
             );
         }
+    }
+
+    /**
+     * For each version that is newer of the current DeploYii home version and that requires
+     * changes, tells the user which changes need to be performed manually and if possible
+     * updates it automatically.
+     *
+     * To update a file it is possible to amend it manually or to remove it; if the file is missing
+     * it will be replaced with the original one from the home-dist folder.
+     *
+     * If some manual changes are required, it is possible to simply delete the VERSION file once
+     * the changes have been applied.
+     *
+     * @param string $homeVersion The DeploYii home version
+     *
+     * @throws \yii\console\Exception if the home folder requires to be updated manually
+     */
+    public static function checkHomeVersion($homeVersion)
+    {
+
+        $changeLog = '';
+        $requiredActions = '';
+        $home = Shell::getHomeDir();
+        $homeDist = __DIR__.'/../home-dist';
+
+        $changes = array_reverse(self::$_homeChangeList);
+
+        foreach ($changes as $version => $list) {
+
+            if (version_compare($version, $homeVersion, '>')) {
+                // files to be manually updated by the user:
+                if (isset($list['mod'])) {
+                    foreach ($list['mod'] as $relFilePath => $logMessage) {
+                        // If the destination file does not exists, add it from the dist folder
+                        // instead of requesting the user to manually update it:
+                        $destFile = $home.DIRECTORY_SEPARATOR.$relFilePath;
+                        if (!file_exists($destFile)) {
+                            $list['add'][$relFilePath] = $logMessage;
+                            unset($list['mod'][$relFilePath]);
+                        } else {
+                            $requiredActions .= " - [{$version}] {$relFilePath}: {$logMessage}\n";
+                        }
+                    }
+                }
+                // files to be added: (if no manual actions are required)
+                if (empty($requiredActions) && isset($list['add'])) {
+                    foreach ($list['add'] as $relFilePath => $logMessage) {
+                        $srcFile = $homeDist.DIRECTORY_SEPARATOR.$relFilePath;
+                        $destFile = $home.DIRECTORY_SEPARATOR.$relFilePath;
+                        if (!file_exists($destFile) && file_exists($srcFile)) {
+                            $changeLog .= " - [{$version}] Adding {$relFilePath} ({$logMessage})\n";
+                            copy($srcFile, $destFile);
+                        }
+                    }
+                }
+                // files to be removed: (if no manual actions are required)
+                if (empty($requiredActions) && isset($list['rem'])) {
+                    foreach ($list['rem'] as $relFilePath => $logMessage) {
+                        $destFile = $home.DIRECTORY_SEPARATOR.$relFilePath;
+                        if (file_exists($destFile)) {
+                            $changeLog .= " - [{$version}] Removing {$relFilePath} ({$logMessage})\n";
+                            unlink($destFile);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!empty($requiredActions)) {
+            throw new Exception(
+                "Your DeploYii home folder needs to be manually updated to "
+                .DEPLOYII_VERSION.":\n".$requiredActions
+                ."When done delete the VERSION file and run DeploYii again.\n"
+            );
+        } elseif (!empty($changeLog)) {
+            self::updateHomeVersion();
+
+            Console::stdout(
+                "---------------------------------------------------------------\n"
+                ."Your DeploYii home folder has been updated to: ".DEPLOYII_VERSION.":\n".$changeLog
+                ."---------------------------------------------------------------\n"
+            );
+            sleep(1);
+        }
+    }
+
+    /**
+     * Update the version number of the home folder with the current DeploYii version
+     */
+    public static function updateHomeVersion()
+    {
+        file_put_contents(Shell::getHomeDir().DIRECTORY_SEPARATOR.'VERSION', DEPLOYII_VERSION);
+    }
+
+    /**
+     * @return string The DeploYii home version
+     */
+    public static function getHomeVersion()
+    {
+        $versionFile = Shell::getHomeDir().'/VERSION';
+
+        if (!file_exists($versionFile)) {
+            self::updateHomeVersion();
+        }
+
+        return trim(file_get_contents($versionFile));
     }
 
 } 
