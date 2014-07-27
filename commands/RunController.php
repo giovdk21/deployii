@@ -10,7 +10,9 @@
 namespace app\commands;
 
 use app\lib\BaseConsoleController;
+use app\lib\Log;
 use app\lib\TaskRunner;
+use yii\console\Exception;
 
 
 /**
@@ -34,7 +36,8 @@ class RunController extends BaseConsoleController
     {
 
         $this->workspace = realpath($workspace);
-        $buildFile = $this->workspace . '/' . $this->getScriptFolder() . '/build.php';
+        $buildFile = $this->workspace.DIRECTORY_SEPARATOR
+            .$this->getScriptFolder().DIRECTORY_SEPARATOR.'build.php';
 
         TaskRunner::init($this, $buildFile);
         $exitCode = TaskRunner::run($target);

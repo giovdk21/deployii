@@ -9,7 +9,6 @@
 
 namespace app\lib;
 
-
 use yii\console\Exception;
 use yii\helpers\FileHelper;
 
@@ -66,4 +65,4 @@ class Shell
         }
     }
 
-} 
+}

@@ -62,7 +62,7 @@ class VersionManager
         }
 
         if (!empty($changeLog)) {
-            throw new Exception(
+            Log::throwException(
                 "Your build script is not compatible with DeploYii "
                 .DEPLOYII_VERSION.":\n".$changeLog
             );
@@ -136,7 +136,7 @@ class VersionManager
         }
 
         if (!empty($requiredActions)) {
-            throw new Exception(
+            Log::throwException(
                 "Your DeploYii home folder needs to be manually updated to "
                 .DEPLOYII_VERSION.":\n".$requiredActions
                 ."When done delete the VERSION file and run DeploYii again.\n"

@@ -15,7 +15,6 @@ use yii\helpers\Console;
 class BaseConsoleController extends Controller
 {
 
-
     /**
      * @var bool Do not perform any real action.
      */
@@ -29,9 +28,6 @@ class BaseConsoleController extends Controller
     /** @var array list of options provided from command line */
     private $_providedOptions = [];
 
-    /** @var array log messages */
-    private static $_log = [];
-
 
     /**
      * Extending runAction to handle extra params loaded dynamically
@@ -41,6 +37,14 @@ class BaseConsoleController extends Controller
      */
     public function runAction($id, $params = [])
     {
+
+        Log::logger()->addDebug(
+            'Executing application command {controller}/{action}',
+            [
+                'controller' => $this->id,
+                'action' => (!empty($id) ? $id : $this->defaultAction),
+            ]
+        );
 
         if (!empty($params)) {
             $options = $this->options($id);
@@ -100,6 +104,21 @@ class BaseConsoleController extends Controller
         } else {
             return false;
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function stderr($string)
+    {
+        Log::logger()->addError($string);
+        parent::stderr($string);
+    }
+
+    public function warn($string) {
+        Log::logger()->addWarning($string);
+        $this->stdout('Warning: ', Console::FG_PURPLE, Console::BOLD);
+        $this->stdout($string);
     }
 
     /**

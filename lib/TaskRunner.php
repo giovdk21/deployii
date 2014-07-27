@@ -54,7 +54,7 @@ class TaskRunner
             /** @noinspection PhpIncludeInspection */
             self::$_buildScript = require($buildFile);
         } else {
-            throw new Exception('Build script not found: '.$buildFile);
+            Log::throwException('Build script not found: '.$buildFile);
         }
 
         // Set default aliases
@@ -64,7 +64,7 @@ class TaskRunner
         if (!empty(self::$_buildScript['deployiiVersion'])) {
             VersionManager::checkBuildVersion(self::$_buildScript['deployiiVersion']);
         } else {
-            throw new Exception('Please specify the "deployiiVersion" in your build script');
+            Log::throwException('Please specify the "deployiiVersion" in your build script');
         }
 
         // Check that the user defined commands and recipes do not override the built-in ones:
@@ -102,7 +102,7 @@ class TaskRunner
         $target = (empty($target) ? 'default' : $target);
 
         if (empty(self::$_buildScript) || empty(self::$controller)) {
-            throw new Exception('Empty script: init() not called or invalid build file');
+            Log::throwException('Empty script: init() not called or invalid build file');
         }
 
         if (isset(self::$_buildScript['targets'][$target])) { // run the selected target
@@ -193,7 +193,7 @@ class TaskRunner
             || !isset(self::$_recipes[$recipeName]['targets'])
             || empty(self::$_recipes[$recipeName]['targets'][$recipeTarget])
         ) {
-            throw new Exception("Invalid recipe / target: {$recipeName} [{$recipeTarget}]");
+            Log::throwException("Invalid recipe / target: {$recipeName} [{$recipeTarget}]");
         }
 
         $recipeScript = self::$_recipes[$recipeName]['targets'][$recipeTarget];
@@ -251,6 +251,14 @@ class TaskRunner
                         : ''
                     ); // Text to print
                     $functionParams[1] = (!empty($functionParams[1]) ? $functionParams[1] : Console::FG_RED);
+                    break;
+
+                case 'warn':
+                    $function = [self::$controller, 'warn'];
+                    $functionParams[0] = (!empty($functionParams[0])
+                        ? self::parseStringParams($functionParams[0])."\n"
+                        : ''
+                    ); // Text to print
                     break;
 
                 case 'prompt':
@@ -505,7 +513,7 @@ class TaskRunner
             preg_match('/(.*)(?:--(\w+)$)/', $reqId, $reqInfo);
 
             if (empty($reqInfo[1]) || empty($reqInfo[2])) {
-                throw new Exception("Invalid requirement: ".$reqId);
+                Log::throwException("Invalid requirement: ".$reqId);
             }
 
             $requirement = $reqInfo[1];
@@ -545,7 +553,7 @@ class TaskRunner
                         break;
 
                     default:
-                        throw new Exception("Invalid requirement: ".$type);
+                        Log::throwException("Invalid requirement: ".$type);
                         break;
                 }
             }
@@ -638,7 +646,7 @@ class TaskRunner
         $overridingRecipes = array_intersect($builtInRecipes, $userRecipes);
 
         if (!empty($overridingCommands) || !empty($overridingRecipes)) {
-            throw new Exception(
+            Log::throwException(
                 'You cannot override built-in commands or recipes: '
                 .trim(implode(", ", $overridingCommands).", ".implode(".", $overridingRecipes), ', ')
             );
@@ -649,8 +657,7 @@ class TaskRunner
         $overridingUserRecipes = array_intersect($userGlobalRecipes, $userBuildRecipes);
 
         if (!empty($overridingUserCommands) || !empty($overridingUserRecipes)) {
-            self::$controller->stdout('Warning: ', Console::FG_PURPLE, Console::BOLD);
-            self::$controller->stdout(
+            self::$controller->warn(
                 'You are overriding global commands or recipes: '
                 .trim(implode(", ", $overridingUserCommands).", ".implode(".", $overridingUserRecipes), ', ')
                 ."\n"

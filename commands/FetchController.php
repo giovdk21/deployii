@@ -46,11 +46,11 @@ class FetchController extends BaseConsoleController
         $exitCode = 0;
 
         // TODO: read info from the database
-        $projectInfo = (object)require(__DIR__ . '/../projects_tmp/' . $projectId . '.php');
+        $projectInfo = (object)require(__DIR__.'/../projects_tmp/'.$projectId.'.php');
         // ------------------------
 
 
-        $this->workspace = __DIR__ . '/../workspace/' . $projectInfo->id . "_" . time();
+        $this->workspace = realpath(__DIR__.'/../workspace').DIRECTORY_SEPARATOR.$projectInfo->id."_".time();
 
         $gitClone = false;
         try {
@@ -61,7 +61,6 @@ class FetchController extends BaseConsoleController
                 $gitOptions['branch'] = $projectInfo->branch;
             }
 
-            // TODO: refactor using different variable for clone directory (workspace should include the optional rootFolder)
             $gitClone = $wrapper->cloneRepository($projectInfo->repo, $this->workspace, $gitOptions);
         } catch (GitException $e) {
             $this->stderr($e->getMessage(), Console::FG_RED);
@@ -69,19 +68,19 @@ class FetchController extends BaseConsoleController
         }
 
         if (!empty($projectInfo->rootFolder)) {
-            $this->workspace .= '/' . $projectInfo->rootFolder;
+            $this->workspace .= '/'.$projectInfo->rootFolder;
         }
 
         if ($gitClone && $this->run) {
 
             // TODO: parametrise deployii folder name / path (relative to workspace)
-            $buildFile = $this->workspace . '/' . $this->getScriptFolder() . '/build.php';
+            $buildFile = $this->workspace.'/'.$this->getScriptFolder().'/build.php';
 
             if (file_exists($buildFile)) {
                 TaskRunner::init($this, $buildFile);
                 $exitCode = TaskRunner::run($this->target);
             } else {
-                $this->stderr("Build file not found: " . $buildFile, Console::FG_RED);
+                $this->stderr("Build file not found: ".$buildFile, Console::FG_RED);
                 $exitCode = 1;
             }
 
