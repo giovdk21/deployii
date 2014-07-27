@@ -9,7 +9,6 @@
 
 namespace app\lib;
 
-use yii\console\Exception;
 use yii\helpers\Console;
 use Yii;
 
@@ -157,6 +156,7 @@ class TaskRunner
         $recipeFile = $recipesDir.'/'.$recipeClass.'.php';
 
         if (file_exists($recipeFile)) {
+            Log::logger()->addInfo('Loading recipe file: {file}', ['file' => $recipeFile]);
             /** @noinspection PhpIncludeInspection */
             $recipeScript = require($recipeFile);
         } elseif (!$globalRecipe && !$userRecipe) {
@@ -296,8 +296,13 @@ class TaskRunner
                 case 'if':
                     $result = (!empty($functionParams[0]) ? eval('return '.$functionParams[0].';') : false);
 
-                    // TODO: log instead of print out:
-                    //self::$controller->stdout('IF result: '.var_export($result, true)."\n", Console::FG_PURPLE);
+                    Log::logger()->addDebug(
+                        'Evaluating IF condition {condition}: {result}',
+                        [
+                            'condition' => $functionParams[0],
+                            'result' => var_export($result, true),
+                        ]
+                    );
 
                     if ($result && !empty($functionParams[1]) && is_array($functionParams[1])) {
                         self::_process($functionParams[1]); // "if" code block
@@ -436,6 +441,13 @@ class TaskRunner
 
         if (file_exists($commandFile) && method_exists($baseNamespace.$commandClass, 'run')) {
             $command = $baseNamespace.$commandClass;
+            Log::logger()->addInfo(
+                'Getting command {command} from {file}',
+                [
+                    'command' => $command,
+                    'file' => $commandFile,
+                ]
+            );
         } elseif (!$globalCommand && !$userCommand) {
             $command = self::_getCommand($cmdName, true);
         }

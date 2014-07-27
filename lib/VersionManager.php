@@ -13,7 +13,6 @@
 namespace app\lib;
 
 
-use yii\console\Exception;
 use yii\helpers\Console;
 
 class VersionManager
@@ -144,9 +143,12 @@ class VersionManager
         } elseif (!empty($changeLog)) {
             self::updateHomeVersion();
 
+            $message = "Your DeploYii home folder has been updated to: ".DEPLOYII_VERSION.":\n".$changeLog;
+            Log::logger()->addInfo($message);
+
             Console::stdout(
                 "---------------------------------------------------------------\n"
-                ."Your DeploYii home folder has been updated to: ".DEPLOYII_VERSION.":\n".$changeLog
+                .$message
                 ."---------------------------------------------------------------\n"
             );
             sleep(1);

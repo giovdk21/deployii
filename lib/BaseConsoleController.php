@@ -112,7 +112,8 @@ class BaseConsoleController extends Controller
     public function stderr($string)
     {
         Log::logger()->addError($string);
-        parent::stderr($string);
+        $args = func_get_args();
+        call_user_func_array(['parent', 'stderr'], $args);
     }
 
     public function warn($string) {
