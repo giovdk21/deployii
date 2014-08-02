@@ -77,10 +77,14 @@ class InitController extends BaseConsoleController
                     );
 
                     // Copy config.php (if needed)
-                    $createConf = $this->confirm(
-                        'Do you need to create the build configuration file?',
-                        $this->createConfig
-                    );
+                    if ($this->interactive) {
+                        $createConf = $this->confirm(
+                            'Do you need to create the build configuration file?',
+                            $this->createConfig
+                        );
+                    } else {
+                        $createConf = $this->createConfig;
+                    }
                     if ($createConf) {
                         $configFile = $home.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'config.tpl.php';
                         $buildConfigFile = $scriptsDir.DIRECTORY_SEPARATOR.'config.php';
