@@ -20,8 +20,8 @@ class VersionManager
 
     /** @var array list of changes that break compatibility between DeploYii and the build script; newer on top */
     private static $_buildChangeList = [
-        // newer on top
-        // '0.3' => ['...'],
+        // (newer on top)
+        '0.3' => ['loadJson prefix separator is now a dot'],
         '0.2' => [
             'renamed @scripts alias to @buildScripts',
             'changed require list format from "name"=>"type" to "name--type"',
