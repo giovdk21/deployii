@@ -19,6 +19,8 @@ class TaskRunner
     private static $_buildScript = [];
     /** @var array build script parameters */
     private static $_params = [];
+    /** @var array parameters loaded from the config.php file (obfuscated in the log) */
+    private static $_configParams = [];
     /** @var array list of loaded requirements */
     private static $_loadedRequirements = [];
     /** @var array the content of the loaded recipes */
@@ -30,12 +32,14 @@ class TaskRunner
     /**
      * Initialise the TaskRunner:
      * - set aliases
-     * - check script version / compatibility
+     * - check build script & home directory version / compatibility
      * - check that the user defined commands and recipes do not override the built-in ones
      * - load requirements and initialises the extra parameters
      * - load default parameters from build file
+     * - load build script configuration (if present) and ask/set current environment (if needed)
      * - overwrite script parameters with values passed from the command line
      * - check commands global requirements to make sure that all the commands can be ran
+     * - log build script parameters
      *
      * @param BaseConsoleController $controller The controller which initialises the TaskRunner
      * @param string                $buildFile
@@ -80,11 +84,17 @@ class TaskRunner
             self::$_params = array_merge(self::$_params, self::$_buildScript['params']);
         }
 
+        // load build script configuration (if present) and ask/set current environment (if needed)
+        self::_loadScriptConfig();
+
         // overwrite script parameters with values passed from the command line:
         self::_setParamsFromOptions();
 
         // check commands global requirements to make sure that all the commands can be ran:
         self::_checkAllRequirements();
+
+        // log build script parameters
+        self::logParams();
     }
 
     /**
@@ -300,7 +310,7 @@ class TaskRunner
                         'Evaluating IF condition {condition}: {result}',
                         [
                             'condition' => $functionParams[0],
-                            'result' => var_export($result, true),
+                            'result'    => var_export($result, true),
                         ]
                     );
 
@@ -344,27 +354,49 @@ class TaskRunner
         $string = preg_replace_callback(
             '/{{(.*)}}/',
             function (array $matches) {
-
-                $var = (isset(self::$_params[$matches[1]]) ? self::$_params[$matches[1]] : null);
-
-                if (is_array($var)) {
-                    $res = implode(', ', $var);
-                } elseif (is_string($var)) {
-                    $res = $var;
-                } elseif (is_int($var) || is_double($var)) {
-                    $res = (string)$var;
-                } elseif (is_bool($var)) {
-                    $res = ($var ? 'true' : 'false');
-                } else {
-                    $res = "[".gettype($var)."]";
-                }
-
-                return $res;
+                return self::getParamString($matches[1]);
             },
             $string
         );
 
         return $string;
+    }
+
+    public static function getParamString($paramName)
+    {
+        $var = (isset(self::$_params[$paramName]) ? self::$_params[$paramName] : null);
+
+        if (!in_array($paramName, self::$_configParams)) {
+            if (is_array($var)) {
+                $res = implode(', ', $var);
+            } elseif (is_string($var)) {
+                $res = $var;
+            } elseif (is_int($var) || is_double($var)) {
+                $res = (string)$var;
+            } elseif (is_bool($var)) {
+                $res = ($var ? 'true' : 'false');
+            } else {
+                $res = "[".gettype($var)."]";
+            }
+        } else {
+            $res = str_repeat('*', strlen((string)$var));
+        }
+
+        return $res;
+    }
+
+    /**
+     * Log build script parameters
+     */
+    public static function logParams()
+    {
+        $paramList = '';
+
+        foreach (self::$_params as $paramName => $value) {
+            $paramList .= $paramName.': '.self::getParamString($paramName)."\n";
+        }
+
+        Log::logger()->addInfo("Build script parameters: \n\n".$paramList);
     }
 
     /**
@@ -445,13 +477,12 @@ class TaskRunner
                 'Getting command {command} from {file}',
                 [
                     'command' => $command,
-                    'file' => $commandFile,
+                    'file'    => $commandFile,
                 ]
             );
         } elseif (!$globalCommand && !$userCommand) {
             $command = self::_getCommand($cmdName, true);
-        }
-        elseif (!$userCommand) {
+        } elseif (!$userCommand) {
             $command = self::_getCommand($cmdName, false, true);
         }
 
@@ -628,6 +659,69 @@ class TaskRunner
     }
 
     /**
+     * Load build script configuration (if present) and ask/set current environment (if needed)
+     */
+    private static function _loadScriptConfig()
+    {
+        $env = '';
+        $configFile = Yii::getAlias('@buildScripts/config.php');
+
+        if (file_exists($configFile)) {
+
+            Log::logger()->addDebug(
+                'Loading build script configuration: {configFile}',
+                ['configFile' => $configFile]
+            );
+
+            /** @noinspection PhpIncludeInspection */
+            $config = require($configFile);
+
+            $envConfig = [];
+            $commonConfig = (!empty($config['config']['common']) ? $config['config']['common'] : []);
+            if (!empty($config['environments']) && is_array($config['environments'])) {
+
+                Log::logger()->addDebug(
+                    'Available environments: {environments}',
+                    ['environments' => implode(', ', array_keys($config['environments']))]
+                );
+
+                if (!property_exists(self::$controller, 'env') || empty(self::$controller->env)) {
+
+                    if (self::$controller->interactive) {
+                        $env = self::$controller->select(
+                            'Please select your current environment',
+                            $config['environments']
+                        );
+                    } elseif (isset($config['defaultEnvironment'])) {
+                        $env = $config['defaultEnvironment'];
+                    }
+                } else {
+                    $env = self::$controller->env;
+                }
+
+                if (!isset($config['environments'][$env])) {
+                    Log::throwException('Invalid environment: '.$env);
+                }
+
+                Log::logger()->addDebug(
+                    'Using environment: {env}',
+                    ['env' => $env]
+                );
+
+                $envConfig = (!empty($config['config'][$env]) ? $config['config'][$env] : []);
+            }
+
+            $flatCommonConfig = self::flattenArray($commonConfig);
+            $flatEnvConfig = self::flattenArray($envConfig);
+
+            $flatConfig = array_merge($flatCommonConfig, $flatEnvConfig);
+
+            self::$_configParams = array_keys($flatConfig);
+            self::$_params = array_merge(self::$_params, $flatConfig);
+        }
+    }
+
+    /**
      * Compare the php files of the built-in commands and recipes with the user defined ones.
      * If the user defined ones have the same name of the built-in ones, throws and exception.
      *
@@ -691,6 +785,51 @@ class TaskRunner
 
         foreach ($fileList as $path) {
             $res [] = strtolower(basename($path));
+        }
+
+        return $res;
+    }
+
+    /**
+     * Flatten an array based on the given method;
+     *
+     * camelCase:
+     * ['db' => ['username' => 'user]] becomes ['dbUsername' => 'user']
+     *
+     * dot:
+     * ['db' => ['username' => 'user]] becomes ['db.username' => 'user']
+     *
+     * @param array  $array
+     * @param string $method 'camelCase' or 'dot'
+     * @param string $keyPrefix
+     *
+     * @return array
+     */
+    private static function flattenArray($array, $method = 'camelCase', $keyPrefix = '')
+    {
+        $res = array();
+
+        foreach ($array as $key => $val) {
+
+            $newKey = $key;
+            if (!empty($keyPrefix)) {
+                switch ($method) {
+                    case 'camelCase':
+                        $newKey = $keyPrefix.ucfirst($key);
+                        break;
+                    case 'dot':
+                        $newKey = $keyPrefix.'.'.$key;
+                        break;
+                }
+            }
+
+            if (is_array($val)) {
+                $flattened = self::flattenArray($val, $method, $newKey);
+                $res = array_merge($res, $flattened);
+            } else {
+                $res[$newKey] = $val;
+            }
+
         }
 
         return $res;

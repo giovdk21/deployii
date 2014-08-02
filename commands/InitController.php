@@ -13,7 +13,6 @@ use app\lib\BaseConsoleController;
 use app\lib\Log;
 use app\lib\Shell;
 use app\lib\TaskRunner;
-use yii\helpers\Console;
 use yii\helpers\FileHelper;
 
 
@@ -31,6 +30,11 @@ class InitController extends BaseConsoleController
      * @var bool Whether run or not the build after initialising it.
      */
     public $run = false;
+
+    /**
+     * @var bool If true, the build config.php will be created from the template in the DeploYii home
+     */
+    public $createConfig = false;
 
     /**
      * @param string $workspace Path to the project workspace
@@ -53,7 +57,7 @@ class InitController extends BaseConsoleController
         } else {
 
             $home = Shell::getHomeDir();
-            $srcFile = $home.DIRECTORY_SEPARATOR.'build.tpl.php';
+            $srcFile = $home.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'build.tpl.php';
             if (file_exists($srcFile)) {
 
                 $this->stdout('- ');
@@ -63,7 +67,33 @@ class InitController extends BaseConsoleController
                     $template = file_get_contents($srcFile);
                     $template = str_replace('{{deployiiVersion}}', DEPLOYII_VERSION, $template);
 
+                    // Save build file
                     file_put_contents($buildFile, $template);
+
+                    // Copy gitignore
+                    copy(
+                        $home.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'gitignore.tpl',
+                        $scriptsDir.DIRECTORY_SEPARATOR.'.gitignore'
+                    );
+
+                    // Copy config.php (if needed)
+                    $createConf = $this->confirm(
+                        'Do you need to create the build configuration file?',
+                        $this->createConfig
+                    );
+                    if ($createConf) {
+                        $configFile = $home.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'config.tpl.php';
+                        $buildConfigFile = $scriptsDir.DIRECTORY_SEPARATOR.'config.php';
+
+                        if (!file_exists($buildConfigFile)) {
+                            $this->logStdout('Generating build config: '.$buildConfigFile."\n");
+                            copy($configFile, $buildConfigFile);
+                        } else {
+                            Log::throwException(
+                                'Build configuration already exists in the given workspace: '.$buildConfigFile
+                            );
+                        }
+                    }
 
                     $run = $this->confirm('Do you want to run the build script?', $this->run);
                     if ($run) {
@@ -103,6 +133,7 @@ class InitController extends BaseConsoleController
         $options = parent::options($actionId);
 
         $options[] = 'run';
+        $options[] = 'createConfig';
 
         return $options;
     }

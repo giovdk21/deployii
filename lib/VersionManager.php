@@ -33,8 +33,9 @@ class VersionManager
 //        '0.3' => [
 //            'add' => [],
 //            'mod' => [
-//                'config.php' => 'Added logger configuration parameters',
-//                'build.tpl.php' => 'Set deployiiVersion to 0.3',
+//                'templates/build.tpl.php' => 'Set deployiiVersion to 0.3',
+//                'templates/config.tpl.php' => 'Added build configuration template file',
+//                'templates/gitignore.tpl' => 'Added gitignore template file',
 //            ],
 //            'rem' => [],
 //        ],

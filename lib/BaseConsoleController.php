@@ -21,6 +21,11 @@ class BaseConsoleController extends Controller
      */
     public $dryRun = false;
 
+    /**
+     * @var string The current environment (dev, prod, ...).
+     */
+    public $env = '';
+
     /** @var string path to the project workspace */
     public $workspace;
 
@@ -151,6 +156,7 @@ class BaseConsoleController extends Controller
         $options = parent::options($actionId);
 
         $options[] = 'dryRun';
+        $options[] = 'env';
 
         return $options;
     }
