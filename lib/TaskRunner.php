@@ -805,7 +805,7 @@ class TaskRunner
      *
      * @return array
      */
-    private static function flattenArray($array, $method = 'camelCase', $keyPrefix = '')
+    public static function flattenArray($array, $method = 'camelCase', $keyPrefix = '')
     {
         $res = array();
 

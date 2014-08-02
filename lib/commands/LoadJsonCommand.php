@@ -28,6 +28,7 @@ class LoadJsonCommand extends BaseCommand
         $filename = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
         $prefix = (!empty($cmdParams[1]) ? $cmdParams[1] : '');
         $defaultValues = (!empty($cmdParams[2]) ? $cmdParams[2] : []);
+        $flattenMethod = (!empty($cmdParams[3]) ? $cmdParams[3] : 'dot');
 
         if (empty($filename)) {
             throw new Exception('Please specify the path of the file you want to load');
@@ -35,20 +36,22 @@ class LoadJsonCommand extends BaseCommand
 
         TaskRunner::$controller->stdout("Loading json file: \n  " . $filename);
 
-        $prefix = (!empty($prefix) ? $prefix . '_' : '');
-
         // initialise the parameters with the default values
+        $defaultValues = TaskRunner::flattenArray($defaultValues, $flattenMethod, $prefix);
         foreach ($defaultValues as $key => $value) {
-            $params[$prefix . $key] = $value;
+            $params[$key] = $value;
         }
 
         if (file_exists($filename)) {
             $data = Json::decode(file_get_contents($filename));
 
             if (is_array($data)) {
+
+                $data = TaskRunner::flattenArray($data, $flattenMethod, $prefix);
+
                 // override the parameters with the loaded values
                 foreach ($data as $key => $value) {
-                    $params[$prefix . $key] = $value;
+                    $params[$key] = $value;
                 }
             } else {
                 $res = false; // invalid content
