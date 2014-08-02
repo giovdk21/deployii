@@ -4,9 +4,9 @@
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -47,18 +47,19 @@ or as deployment solution to package and deploy your code.</p>
 <a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting started</h2>
 
 <ol>
-<li>get DeploYii: <code>composer create-project giovdk21/deployii deployii ~0.2</code>
+<li>get DeploYii: <code>composer create-project giovdk21/deployii deployii ~0.3</code>
 </li>
 <li>go inside the deployii folder (<code>cd deployii/</code>)</li>
 <li>run <code>./deployii</code> to check the available options</li>
 <li>run <code>./deployii fetch example_basic</code> to try out the basic example</li>
 <li>run <code>./deployii run workspace/example_basic_[...]/basicExample/</code> to run it again, without re-downloading it</li>
 <li>run <code>./deployii run workspace/example_basic_[...]/basicExample/ clean</code> to run the clean target</li>
+<li>run <code>./deployii init workspace/helloWorld/</code> to create a new build script</li>
 </ol><p><strong>For more information see the documentation on the <a href="https://github.com/giovdk21/deployii/wiki">wiki</a>.</strong></p>
 
 <div class="highlight highlight-php"><pre><span class="k">return</span> <span class="p">[</span>
 
-  <span class="s1">'deployiiVersion'</span> <span class="o">=&gt;</span> <span class="s1">'0.2.0'</span><span class="p">,</span>
+  <span class="s1">'deployiiVersion'</span> <span class="o">=&gt;</span> <span class="s1">'0.3.0'</span><span class="p">,</span>
 
   <span class="s1">'require'</span> <span class="o">=&gt;</span> <span class="p">[],</span>
 
@@ -103,6 +104,7 @@ or as deployment solution to package and deploy your code.</p>
 <li>set files and folders permissions</li>
 <li>path aliases to the workspace and the build script folders</li>
 <li>parameters placeholders also work in paths</li>
+<li>build execution log</li>
 <li>dry run mode</li>
 </ul><h2>
 <a name="planned-features" class="anchor" href="#planned-features"><span class="octicon octicon-link"></span></a>Planned features</h2>
@@ -116,7 +118,6 @@ or as deployment solution to package and deploy your code.</p>
 <li>codeception related commands</li>
 <li>other CI related commands</li>
 <li>JS and CSS minification and concatenation</li>
-<li>build execution log</li>
 <li>workspaces cleanup</li>
 <li>project management user interface</li>
 <li>database based project information</li>
