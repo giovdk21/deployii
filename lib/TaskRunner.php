@@ -660,6 +660,8 @@ class TaskRunner
 
     /**
      * Load build script configuration (if present) and ask/set current environment (if needed)
+     *
+     * The current environment name is saved in params['environment']
      */
     private static function _loadScriptConfig()
     {
@@ -707,6 +709,9 @@ class TaskRunner
                     'Using environment: {env}',
                     ['env' => $env]
                 );
+
+                // Save the current environment name in params['environment']:
+                self::$_params['environment'] = $env;
 
                 $envConfig = (!empty($config['config'][$env]) ? $config['config'][$env] : []);
             }
