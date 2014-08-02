@@ -21,19 +21,20 @@ Requirements
 Getting started
 -------------
 
-1. get DeploYii: `composer create-project giovdk21/deployii deployii ~0.2`
+1. get DeploYii: `composer create-project giovdk21/deployii deployii ~0.3`
 2. go inside the deployii folder (`cd deployii/`)
 3. run `./deployii` to check the available options
 4. run `./deployii fetch example_basic` to try out the basic example
 5. run `./deployii run workspace/example_basic_[...]/basicExample/` to run it again, without re-downloading it
 6. run `./deployii run workspace/example_basic_[...]/basicExample/ clean` to run the clean target
+7. run `./deployii init workspace/helloWorld/` to create a new build script
 
 **For more information see the documentation on the [wiki](https://github.com/giovdk21/deployii/wiki).**
 
 ```php
 return [
 
-  'deployiiVersion' => '0.2.0',
+  'deployiiVersion' => '0.3.0',
 
   'require' => [],
 
