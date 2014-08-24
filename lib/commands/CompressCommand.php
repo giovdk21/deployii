@@ -20,6 +20,10 @@ use yii\helpers\FileHelper;
 class CompressCommand extends BaseCommand
 {
 
+    const CMP_GZ = 'gz';
+    const CMP_BZ2 = 'bz2';
+    const CMP_NONE = 'none';
+
     /**
      * @inheritdoc
      */
@@ -28,17 +32,15 @@ class CompressCommand extends BaseCommand
 
         $res = true;
         $toBeAdded = [];
-        $baseDir = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
+        $srcList = (!empty($cmdParams[0]) ? $cmdParams[0] : []);
         $destFile = (!empty($cmdParams[1]) ? TaskRunner::parsePath($cmdParams[1]) : '');
-        $fileList = (!empty($cmdParams[2]) ? $cmdParams[2] : []);
-        $format = (!empty($cmdParams[3]) ? strtolower($cmdParams[3]) : 'gz');
+        $srcBaseDir = (!empty($cmdParams[2]) ? TaskRunner::parsePath($cmdParams[2]) : '');
+        $format = (!empty($cmdParams[3]) ? strtolower($cmdParams[3]) : self::CMP_GZ);
         $options = (!empty($cmdParams[4]) ? $cmdParams[4] : []);
 
-        // TODO: test different scenarios & options
-        // TODO: allow append to archive (?)
 
-        if (empty($baseDir) || !is_dir($baseDir)) {
-            Log::throwException('compress: Base has to be a directory');
+        if (!empty($srcBaseDir) && !is_dir($srcBaseDir)) {
+            Log::throwException('compress: srcBaseDir has to be a directory');
         }
 
         if (empty($destFile) || (file_exists($destFile) && is_dir($destFile))) {
@@ -48,19 +50,19 @@ class CompressCommand extends BaseCommand
 
         switch ($format) {
 
-            case 'none':
+            case self::CMP_NONE:
                 $extension = '.tar';
                 $compression = \Phar::NONE;
                 $doCompress = false;
                 break;
 
-            case 'gz':
+            case self::CMP_GZ:
                 $extension = '.tar.gz';
                 $compression = \Phar::GZ;
                 $doCompress = true;
                 break;
 
-            case 'bz2':
+            case self::CMP_BZ2:
                 $extension = '.tar.bz2';
                 $compression = \Phar::BZ2;
                 $doCompress = true;
@@ -75,19 +77,20 @@ class CompressCommand extends BaseCommand
         }
 
 
-        // if fileList is specified but it is a string, we convert it to an array
-        if (!empty($fileList) && is_string($fileList)) {
-            $fileList = explode(',', $fileList);
+        // if $srcList is specified but it is a string, we convert it to an array
+        if (!empty($srcList) && is_string($srcList)) {
+            $srcList = explode(',', $srcList);
         }
 
-        if (empty($fileList) || !is_array($fileList)) {
-            // if the $fileList array is empty we populate it with the baseDir
-            $toBeAdded = ['./'.basename($baseDir) => $baseDir];
-        } else {
-            foreach ($fileList as $relPath) {
-                $toBeAdded[$relPath] = $baseDir.DIRECTORY_SEPARATOR
-                    .TaskRunner::parseStringParams(trim($relPath));
+
+        foreach ($srcList as $srcPath) {
+
+            $toBeAdded[$srcPath] = '';
+            if (!empty($srcBaseDir)) {
+                $toBeAdded[$srcPath] .= $srcBaseDir.DIRECTORY_SEPARATOR;
             }
+
+            $toBeAdded[$srcPath] .= TaskRunner::parseStringAliases(trim($srcPath));
         }
 
 
@@ -115,7 +118,7 @@ class CompressCommand extends BaseCommand
 
 
         TaskRunner::$controller->stdout("Adding to archive: ");
-        foreach ($toBeAdded as $srcRelPath => $srcFullPath) {
+        foreach ($toBeAdded as $srcFullPath) {
 
             if (file_exists($srcFullPath)) {
 
@@ -129,15 +132,15 @@ class CompressCommand extends BaseCommand
                             new ArrayIterator($files),
                             $srcFullPath
                         );
-                    } else {
-                        $archive->addFile($srcFullPath, $srcRelPath);
+                    } elseif (FileHelper::filterPath($srcFullPath, $options)) {
+                        $archive->addFile($srcFullPath, basename($srcFullPath));
                     }
 
                 } else {
                     TaskRunner::$controller->stdout(' [dry run]', Console::FG_YELLOW);
                 }
             } else {
-                TaskRunner::$controller->stderr("{$srcFullPath} is not a directory!\n", Console::FG_RED);
+                TaskRunner::$controller->stderr("\n{$srcFullPath} does not exists!\n", Console::FG_RED);
             }
         }
         TaskRunner::$controller->stdout("\n");
