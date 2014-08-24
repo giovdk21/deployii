@@ -27,31 +27,32 @@ class CopyDirCommand extends BaseCommand
 
         $res = true;
         $toBeCopied = [];
-        $baseDir = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
+        $srcDirList = (!empty($cmdParams[0]) ? $cmdParams[0] : []);
         $destDir = (!empty($cmdParams[1]) ? TaskRunner::parsePath($cmdParams[1]) : '');
-        $dirList = (!empty($cmdParams[2]) ? $cmdParams[2] : []);
+        $srcBaseDir = (!empty($cmdParams[2]) ? TaskRunner::parsePath($cmdParams[2]) : '');
         $options = (!empty($cmdParams[3]) ? $cmdParams[3] : []);
 
-        if (empty($baseDir) || empty($destDir)) {
+        if (empty($srcDirList) || empty($destDir)) {
             throw new Exception('copyDir: Base and destination cannot be empty');
         }
 
-        if (!is_dir($baseDir) || (file_exists($destDir) && !is_dir($destDir))) {
+        if ((!empty($srcBaseDir) && !is_dir($srcBaseDir)) || (file_exists($destDir) && !is_dir($destDir))) {
             throw new Exception('copyDir: Base and destination have to be directories');
         }
 
-        // if dirList is specified but it is a string, we convert it to an array
-        if (!empty($dirList) && is_string($dirList)) {
-            $dirList = explode(',', $dirList);
+        // if srcDirList is specified but it is a string, we convert it to an array
+        if (!empty($srcDirList) && is_string($srcDirList)) {
+            $srcDirList = explode(',', $srcDirList);
         }
 
-        if (empty($dirList) || !is_array($dirList)) {
-            // if the $dirList array is empty we populate it with the baseDir
-            $toBeCopied = [$baseDir];
-        } else {
-            foreach ($dirList as $dirRelPath) {
-                $toBeCopied[$dirRelPath] = $baseDir.DIRECTORY_SEPARATOR
-                    .TaskRunner::parseStringParams(trim($dirRelPath));
+        foreach ($srcDirList as $dirPath) {
+
+            $parsedPath = TaskRunner::parseStringAliases(trim($dirPath));
+
+            if (!empty($srcBaseDir)) {
+                $toBeCopied[$parsedPath] = $srcBaseDir.DIRECTORY_SEPARATOR.$parsedPath;
+            } else {
+                $toBeCopied[] = $parsedPath;
             }
         }
 
@@ -61,14 +62,14 @@ class CopyDirCommand extends BaseCommand
             if (is_dir($srcDirPath)) {
 
                 /* *
-                 * if the destination directory already exists or if the
-                 * $srcRelPath is a string (meaning that $dirList is not empty)
-                 * we copy the source directory inside of the destination directory
-                 * instead of replacing the destination directory with the base directory
+                 * if the destination directory already exists or if we are
+                 * copying more than one directory, we copy the source directory inside
+                 * of the destination directory instead of replacing the destination
+                 * directory with it
                  * */
                 $destDirPath = $destDir;
-                if (is_dir($destDirPath) || is_string($srcRelPath)) {
-                    $srcRelPath = (is_string($srcRelPath) ? $srcRelPath : basename($baseDir));
+                if (is_dir($destDirPath) || count($toBeCopied) > 1) {
+                    $srcRelPath = (!empty($srcBaseDir) ? $srcRelPath : basename($srcDirPath));
                     $destDirPath = $destDir.DIRECTORY_SEPARATOR.$srcRelPath;
                 }
 
