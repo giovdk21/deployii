@@ -85,12 +85,13 @@ class CompressCommand extends BaseCommand
 
         foreach ($srcList as $srcPath) {
 
-            $toBeAdded[$srcPath] = '';
-            if (!empty($srcBaseDir)) {
-                $toBeAdded[$srcPath] .= $srcBaseDir.DIRECTORY_SEPARATOR;
-            }
+            $parsedPath = TaskRunner::parseStringAliases(trim($srcPath));
 
-            $toBeAdded[$srcPath] .= TaskRunner::parseStringAliases(trim($srcPath));
+            if (!empty($srcBaseDir)) {
+                $toBeAdded[$parsedPath] = $srcBaseDir.DIRECTORY_SEPARATOR.$parsedPath;
+            } else {
+                $toBeAdded[] = $parsedPath;
+            }
         }
 
 
@@ -118,7 +119,7 @@ class CompressCommand extends BaseCommand
 
 
         TaskRunner::$controller->stdout("Adding to archive: ");
-        foreach ($toBeAdded as $srcFullPath) {
+        foreach ($toBeAdded as $srcRelPath => $srcFullPath) {
 
             if (file_exists($srcFullPath)) {
 
@@ -130,10 +131,13 @@ class CompressCommand extends BaseCommand
                         $files = FileHelper::findFiles($srcFullPath, $options);
                         $archive->buildFromIterator(
                             new ArrayIterator($files),
-                            $srcFullPath
+                            !empty($srcBaseDir) ? $srcBaseDir : $srcFullPath
                         );
                     } elseif (FileHelper::filterPath($srcFullPath, $options)) {
-                        $archive->addFile($srcFullPath, basename($srcFullPath));
+                        $archive->addFile(
+                            $srcFullPath,
+                            !empty($srcBaseDir) ? $srcRelPath : basename($srcFullPath)
+                        );
                     }
 
                 } else {
