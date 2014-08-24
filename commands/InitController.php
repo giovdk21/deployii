@@ -101,8 +101,8 @@ class InitController extends BaseConsoleController
 
                     $run = $this->confirm('Do you want to run the build script?', $this->run);
                     if ($run) {
-                        TaskRunner::init($this, $buildFile);
-                        $exitCode = TaskRunner::run();
+                        $taskRunner = new TaskRunner($this, $buildFile);
+                        $exitCode = $taskRunner->run();
                     }
                 }
             }

@@ -10,7 +10,6 @@
 namespace app\lib\commands;
 
 use app\lib\BaseCommand;
-use app\lib\TaskRunner;
 use yii\helpers\Console;
 
 class ExecCommand extends BaseCommand
@@ -19,20 +18,22 @@ class ExecCommand extends BaseCommand
     /**
      * @inheritdoc
      */
-    public static function run(& $cmdParams, & $params)
+    public function run(& $cmdParams, & $params)
     {
 
         $execOutput = [];
+        $taskRunner = $this->taskRunner;
+
         $execResult = null;
         $execCommand = (!empty($cmdParams[0]) ? $cmdParams[0] : '');
-        $execParams = (!empty($cmdParams[1]) ? TaskRunner::parseStringAliases($cmdParams[1]) : '');
+        $execParams = (!empty($cmdParams[1]) ? $taskRunner->parseStringAliases($cmdParams[1]) : '');
         $execHiddenParams = (!empty($cmdParams[2]) ? $cmdParams[2] : ''); // not printed out
 
         $cmdString = trim($execCommand.' '.$execParams);
         $cmdFull = trim($execCommand.' '.$execParams.' '.$execHiddenParams);
 
         if (!empty($execCommand)) {
-            if (!TaskRunner::$controller->dryRun) {
+            if (!$this->controller->dryRun) {
                 exec($cmdFull, $execOutput, $execResult);
             } else {
                 $execResult = 0;
@@ -40,16 +41,16 @@ class ExecCommand extends BaseCommand
             }
 
             if ($execResult !== 0) {
-                TaskRunner::$controller->stderr("Error running ".$cmdString." ({$execResult})\n", Console::FG_RED);
+                $this->controller->stderr("Error running ".$cmdString." ({$execResult})\n", Console::FG_RED);
             } else {
-                TaskRunner::$controller->stdout('Running shell command: ');
-                TaskRunner::$controller->stdout($cmdString."\n", Console::FG_YELLOW);
+                $this->controller->stdout('Running shell command: ');
+                $this->controller->stdout($cmdString."\n", Console::FG_YELLOW);
                 if (!empty($execOutput)) {
-                    TaskRunner::$controller->stdout(
+                    $this->controller->stdout(
                         '---------------------------------------------------------------'."\n"
                     );
-                    TaskRunner::$controller->stdout(implode("\n", $execOutput)."\n");
-                    TaskRunner::$controller->stdout(
+                    $this->controller->stdout(implode("\n", $execOutput)."\n");
+                    $this->controller->stdout(
                         '---------------------------------------------------------------'."\n\n"
                     );
                 }

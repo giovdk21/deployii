@@ -11,7 +11,6 @@ namespace app\lib\commands;
 
 use app\lib\BaseCommand;
 use app\lib\Log;
-use app\lib\TaskRunner;
 use ArrayIterator;
 use yii\helpers\Console;
 use Yii;
@@ -27,14 +26,16 @@ class CompressCommand extends BaseCommand
     /**
      * @inheritdoc
      */
-    public static function run(& $cmdParams, & $params)
+    public function run(& $cmdParams, & $params)
     {
 
         $res = true;
+        $taskRunner = $this->taskRunner;
+
         $toBeAdded = [];
         $srcList = (!empty($cmdParams[0]) ? $cmdParams[0] : []);
-        $destFile = (!empty($cmdParams[1]) ? TaskRunner::parsePath($cmdParams[1]) : '');
-        $srcBaseDir = (!empty($cmdParams[2]) ? TaskRunner::parsePath($cmdParams[2]) : '');
+        $destFile = (!empty($cmdParams[1]) ? $taskRunner->parsePath($cmdParams[1]) : '');
+        $srcBaseDir = (!empty($cmdParams[2]) ? $taskRunner->parsePath($cmdParams[2]) : '');
         $format = (!empty($cmdParams[3]) ? strtolower($cmdParams[3]) : self::CMP_GZ);
         $options = (!empty($cmdParams[4]) ? $cmdParams[4] : []);
 
@@ -85,7 +86,7 @@ class CompressCommand extends BaseCommand
 
         foreach ($srcList as $srcPath) {
 
-            $parsedPath = TaskRunner::parseStringAliases(trim($srcPath));
+            $parsedPath = $taskRunner->parseStringAliases(trim($srcPath));
 
             if (!empty($srcBaseDir)) {
                 $toBeAdded[$parsedPath] = $srcBaseDir.DIRECTORY_SEPARATOR.$parsedPath;
@@ -95,13 +96,13 @@ class CompressCommand extends BaseCommand
         }
 
 
-        TaskRunner::$controller->stdout("Creating archive: ");
-        TaskRunner::$controller->stdout($destFile, Console::FG_BLUE);
+        $this->controller->stdout("Creating archive: ");
+        $this->controller->stdout($destFile, Console::FG_BLUE);
         $archive = null;
         $destDir = dirname($destFile);
         $destBaseFile = $destDir.DIRECTORY_SEPARATOR.basename($destFile, '.tar');
 
-        if (!TaskRunner::$controller->dryRun) {
+        if (!$this->controller->dryRun) {
             if (!is_dir($destDir)) {
                 FileHelper::createDirectory($destDir);
             }
@@ -113,19 +114,19 @@ class CompressCommand extends BaseCommand
                 Log::throwException($e->getMessage());
             }
         } else {
-            TaskRunner::$controller->stdout(' [dry run]', Console::FG_YELLOW);
+            $this->controller->stdout(' [dry run]', Console::FG_YELLOW);
         }
-        TaskRunner::$controller->stdout("\n");
+        $this->controller->stdout("\n");
 
 
-        TaskRunner::$controller->stdout("Adding to archive: ");
+        $this->controller->stdout("Adding to archive: ");
         foreach ($toBeAdded as $srcRelPath => $srcFullPath) {
 
             if (file_exists($srcFullPath)) {
 
-                TaskRunner::$controller->stdout("\n - ".$srcFullPath);
+                $this->controller->stdout("\n - ".$srcFullPath);
 
-                if (!TaskRunner::$controller->dryRun) {
+                if (!$this->controller->dryRun) {
 
                     if (is_dir($srcFullPath)) {
                         $files = FileHelper::findFiles($srcFullPath, $options);
@@ -141,20 +142,20 @@ class CompressCommand extends BaseCommand
                     }
 
                 } else {
-                    TaskRunner::$controller->stdout(' [dry run]', Console::FG_YELLOW);
+                    $this->controller->stdout(' [dry run]', Console::FG_YELLOW);
                 }
             } else {
-                TaskRunner::$controller->stderr("\n{$srcFullPath} does not exists!\n", Console::FG_RED);
+                $this->controller->stderr("\n{$srcFullPath} does not exists!\n", Console::FG_RED);
             }
         }
-        TaskRunner::$controller->stdout("\n");
+        $this->controller->stdout("\n");
 
         if ($doCompress) {
 
-            TaskRunner::$controller->stdout("Compressing archive: ");
-            TaskRunner::$controller->stdout($destBaseFile.$extension, Console::FG_CYAN);
+            $this->controller->stdout("Compressing archive: ");
+            $this->controller->stdout($destBaseFile.$extension, Console::FG_CYAN);
 
-            if (!TaskRunner::$controller->dryRun) {
+            if (!$this->controller->dryRun) {
                 @unlink($destBaseFile.$extension);
                 try {
                     $archive->compress($compression, $extension);
@@ -163,9 +164,9 @@ class CompressCommand extends BaseCommand
                 }
                 @unlink($destFile);
             } else {
-                TaskRunner::$controller->stdout(' [dry run]', Console::FG_YELLOW);
+                $this->controller->stdout(' [dry run]', Console::FG_YELLOW);
             }
-            TaskRunner::$controller->stdout("\n");
+            $this->controller->stdout("\n");
         }
 
         return $res;

@@ -13,13 +13,30 @@ namespace app\lib;
 class BaseCommand
 {
 
+    /** @var TaskRunner the TaskRunner instance */
+    protected $taskRunner;
+
+    /** @var BaseConsoleController the main controller; alias to $taskRunner->controller */
+    protected $controller;
+
+    /**
+     * Initialise the Command
+     *
+     * @param TaskRunner $taskRunner
+     */
+    public function __construct($taskRunner)
+    {
+        $this->taskRunner = $taskRunner;
+        $this->controller = $this->taskRunner->controller;
+    }
+
     /**
      * @param array $cmdParams parameters passed to the command
      * @param array $params    build script parameters
      *
      * @return bool
      */
-    public static function run(& $cmdParams, & $params)
+    public function run(& $cmdParams, & $params)
     {
         return true;
     }

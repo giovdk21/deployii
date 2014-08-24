@@ -10,7 +10,6 @@
 namespace app\lib\commands;
 
 use app\lib\BaseCommand;
-use app\lib\TaskRunner;
 use yii\console\Exception;
 use yii\helpers\Console;
 use Yii;
@@ -22,12 +21,14 @@ class CopyCommand extends BaseCommand
     /**
      * @inheritdoc
      */
-    public static function run(& $cmdParams, & $params)
+    public function run(& $cmdParams, & $params)
     {
 
         $res = true;
-        $fileFrom = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
-        $fileTo = (!empty($cmdParams[1]) ? TaskRunner::parsePath($cmdParams[1]) : '');
+        $taskRunner = $this->taskRunner;
+
+        $fileFrom = (!empty($cmdParams[0]) ? $taskRunner->parsePath($cmdParams[0]) : '');
+        $fileTo = (!empty($cmdParams[1]) ? $taskRunner->parsePath($cmdParams[1]) : '');
 
         if (empty($fileFrom) || empty($fileTo)) {
             throw new Exception('copy: Origin and destination cannot be empty');
@@ -37,15 +38,15 @@ class CopyCommand extends BaseCommand
             $fileTo = FileHelper::normalizePath($fileTo).DIRECTORY_SEPARATOR.basename($fileFrom);
         }
 
-        TaskRunner::$controller->stdout("Copy file: \n  ".$fileFrom." to \n  ".$fileTo);
+        $this->controller->stdout("Copy file: \n  ".$fileFrom." to \n  ".$fileTo);
 
-        if (!TaskRunner::$controller->dryRun) {
+        if (!$this->controller->dryRun) {
             $res = copy($fileFrom, $fileTo);
         } else {
-            TaskRunner::$controller->stdout(' [dry run]', Console::FG_YELLOW);
+            $this->controller->stdout(' [dry run]', Console::FG_YELLOW);
         }
 
-        TaskRunner::$controller->stdout("\n");
+        $this->controller->stdout("\n");
         return $res;
     }
 

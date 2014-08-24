@@ -10,7 +10,6 @@
 namespace app\lib\commands;
 
 use app\lib\BaseCommand;
-use app\lib\TaskRunner;
 use yii\console\Exception;
 use yii\helpers\Console;
 use Yii;
@@ -22,9 +21,9 @@ class SftpConnectCommand extends BaseCommand
     /**
      * @inheritdoc
      */
-    public static function run(& $cmdParams, & $params)
+    public function run(& $cmdParams, & $params)
     {
-        $controller = TaskRunner::$controller;
+        $controller = $this->controller;
 
         $res = false;
         $connectionId = (!empty($cmdParams[0]) ? $cmdParams[0] : '');

@@ -2,7 +2,7 @@
 /**
  * DeploYii - SftpConnectReqs
  *
- * This behavior will be attached to TaskRunner::$controller when the
+ * This behavior will be attached to $this->controller when the
  * associated command is specified as a requirement.
  *
  * @link      https://github.com/giovdk21/deployii
@@ -46,7 +46,7 @@ class SftpConnectReqs extends Behavior
 
     /**
      * This is ran on init() and should perform global requirements check;
-     * see TaskRunner::_checkAllRequirements()
+     * see $this->taskRunner->_checkAllRequirements()
      *
      * @param array $buildParams build script parameters
      */

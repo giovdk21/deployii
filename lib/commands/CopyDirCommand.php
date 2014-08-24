@@ -10,7 +10,6 @@
 namespace app\lib\commands;
 
 use app\lib\BaseCommand;
-use app\lib\TaskRunner;
 use yii\console\Exception;
 use yii\helpers\Console;
 use Yii;
@@ -22,14 +21,16 @@ class CopyDirCommand extends BaseCommand
     /**
      * @inheritdoc
      */
-    public static function run(& $cmdParams, & $params)
+    public function run(& $cmdParams, & $params)
     {
 
         $res = true;
+        $taskRunner = $this->taskRunner;
+
         $toBeCopied = [];
         $srcDirList = (!empty($cmdParams[0]) ? $cmdParams[0] : []);
-        $destDir = (!empty($cmdParams[1]) ? TaskRunner::parsePath($cmdParams[1]) : '');
-        $srcBaseDir = (!empty($cmdParams[2]) ? TaskRunner::parsePath($cmdParams[2]) : '');
+        $destDir = (!empty($cmdParams[1]) ? $taskRunner->parsePath($cmdParams[1]) : '');
+        $srcBaseDir = (!empty($cmdParams[2]) ? $taskRunner->parsePath($cmdParams[2]) : '');
         $options = (!empty($cmdParams[3]) ? $cmdParams[3] : []);
 
         if (empty($srcDirList) || empty($destDir)) {
@@ -47,7 +48,7 @@ class CopyDirCommand extends BaseCommand
 
         foreach ($srcDirList as $dirPath) {
 
-            $parsedPath = TaskRunner::parseStringAliases(trim($dirPath));
+            $parsedPath = $taskRunner->parseStringAliases(trim($dirPath));
 
             if (!empty($srcBaseDir)) {
                 $toBeCopied[$parsedPath] = $srcBaseDir.DIRECTORY_SEPARATOR.$parsedPath;
@@ -73,17 +74,17 @@ class CopyDirCommand extends BaseCommand
                     $destDirPath = $destDir.DIRECTORY_SEPARATOR.$srcRelPath;
                 }
 
-                TaskRunner::$controller->stdout("Copy directory: \n  ".$srcDirPath." to \n  ".$destDirPath);
+                $this->controller->stdout("Copy directory: \n  ".$srcDirPath." to \n  ".$destDirPath);
 
-                if (!TaskRunner::$controller->dryRun) {
+                if (!$this->controller->dryRun) {
                     FileHelper::copyDirectory($srcDirPath, $destDirPath, $options);
                 } else {
-                    TaskRunner::$controller->stdout(' [dry run]', Console::FG_YELLOW);
+                    $this->controller->stdout(' [dry run]', Console::FG_YELLOW);
                 }
 
-                TaskRunner::$controller->stdout("\n");
+                $this->controller->stdout("\n");
             } else {
-                TaskRunner::$controller->stderr("{$srcDirPath} is not a directory!\n", Console::FG_RED);
+                $this->controller->stderr("{$srcDirPath} is not a directory!\n", Console::FG_RED);
             }
         }
 

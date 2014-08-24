@@ -10,7 +10,6 @@
 namespace app\lib\commands;
 
 use app\lib\BaseCommand;
-use app\lib\TaskRunner;
 use yii\console\Exception;
 use Yii;
 use yii\helpers\Json;
@@ -21,11 +20,13 @@ class LoadJsonCommand extends BaseCommand
     /**
      * @inheritdoc
      */
-    public static function run(& $cmdParams, & $params)
+    public function run(& $cmdParams, & $params)
     {
 
         $res = true;
-        $filename = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
+        $taskRunner = $this->taskRunner;
+
+        $filename = (!empty($cmdParams[0]) ? $taskRunner->parsePath($cmdParams[0]) : '');
         $prefix = (!empty($cmdParams[1]) ? $cmdParams[1] : '');
         $defaultValues = (!empty($cmdParams[2]) ? $cmdParams[2] : []);
         $flattenMethod = (!empty($cmdParams[3]) ? $cmdParams[3] : 'dot');
@@ -34,10 +35,10 @@ class LoadJsonCommand extends BaseCommand
             throw new Exception('Please specify the path of the file you want to load');
         }
 
-        TaskRunner::$controller->stdout("Loading json file: \n  " . $filename);
+        $this->controller->stdout("Loading json file: \n  " . $filename);
 
         // initialise the parameters with the default values
-        $defaultValues = TaskRunner::flattenArray($defaultValues, $flattenMethod, $prefix);
+        $defaultValues = $taskRunner->flattenArray($defaultValues, $flattenMethod, $prefix);
         foreach ($defaultValues as $key => $value) {
             $params[$key] = $value;
         }
@@ -47,7 +48,7 @@ class LoadJsonCommand extends BaseCommand
 
             if (is_array($data)) {
 
-                $data = TaskRunner::flattenArray($data, $flattenMethod, $prefix);
+                $data = $taskRunner->flattenArray($data, $flattenMethod, $prefix);
 
                 // override the parameters with the loaded values
                 foreach ($data as $key => $value) {
@@ -58,7 +59,7 @@ class LoadJsonCommand extends BaseCommand
             }
         }
 
-        TaskRunner::$controller->stdout("\n");
+        $this->controller->stdout("\n");
         return $res;
     }
 

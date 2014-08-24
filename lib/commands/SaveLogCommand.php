@@ -11,7 +11,6 @@ namespace app\lib\commands;
 
 use app\lib\BaseCommand;
 use app\lib\Log;
-use app\lib\TaskRunner;
 use Monolog\Formatter\HtmlFormatter;
 use Monolog\Handler\StreamHandler;
 use yii\helpers\Console;
@@ -23,11 +22,13 @@ class SaveLogCommand extends BaseCommand
     /**
      * @inheritdoc
      */
-    public static function run(& $cmdParams, & $params)
+    public function run(& $cmdParams, & $params)
     {
 
         $res = true;
-        $filename = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
+        $taskRunner = $this->taskRunner;
+
+        $filename = (!empty($cmdParams[0]) ? $taskRunner->parsePath($cmdParams[0]) : '');
         $format = (!empty($cmdParams[1]) ? $cmdParams[1] : 'plain');
         $append = (!empty($cmdParams[2]) ? $cmdParams[2] : false);
 
@@ -49,13 +50,13 @@ class SaveLogCommand extends BaseCommand
 
             default:
                 $formatter = false;
-                TaskRunner::$controller->stderr("Invalid log format: {$format}\n", Console::FG_RED);
+                $this->controller->stderr("Invalid log format: {$format}\n", Console::FG_RED);
                 break;
         }
 
-        TaskRunner::$controller->stdout("Saving log file: \n  " . $filename);
+        $this->controller->stdout("Saving log file: \n  " . $filename);
 
-        if (!TaskRunner::$controller->dryRun) {
+        if (!$this->controller->dryRun) {
 
             $logHandler = new StreamHandler($filename);
 
@@ -65,10 +66,10 @@ class SaveLogCommand extends BaseCommand
 
             Log::$deployiiHandler->sendToHandler($logHandler);
         } else {
-            TaskRunner::$controller->stdout(' [dry run]', Console::FG_YELLOW);
+            $this->controller->stdout(' [dry run]', Console::FG_YELLOW);
         }
 
-        TaskRunner::$controller->stdout("\n");
+        $this->controller->stdout("\n");
         return $res;
     }
 

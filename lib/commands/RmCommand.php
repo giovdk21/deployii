@@ -9,7 +9,6 @@
 
 namespace app\lib\commands;
 
-use app\lib\TaskRunner;
 use app\lib\BaseCommand;
 use yii\console\Exception;
 use Yii;
@@ -21,24 +20,26 @@ class RmCommand extends BaseCommand
     /**
      * @inheritdoc
      */
-    public static function run(& $cmdParams, & $params)
+    public function run(& $cmdParams, & $params)
     {
 
-        $filename = (!empty($cmdParams[0]) ? TaskRunner::parsePath($cmdParams[0]) : '');
+        $taskRunner = $this->taskRunner;
+
+        $filename = (!empty($cmdParams[0]) ? $taskRunner->parsePath($cmdParams[0]) : '');
 
         if (empty($filename)) {
             throw new Exception('rm: filename cannot be empty');
         }
 
-        TaskRunner::$controller->stdout('Removing file: ' . $filename);
+        $this->controller->stdout('Removing file: ' . $filename);
 
-        if (!TaskRunner::$controller->dryRun) {
+        if (!$this->controller->dryRun) {
             @unlink($filename);
         } else {
-            TaskRunner::$controller->stdout(' [dry run]', Console::FG_YELLOW);
+            $this->controller->stdout(' [dry run]', Console::FG_YELLOW);
         }
 
-        TaskRunner::$controller->stdout("\n");
+        $this->controller->stdout("\n");
         return true;
     }
 

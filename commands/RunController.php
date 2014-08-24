@@ -39,8 +39,8 @@ class RunController extends BaseConsoleController
         $buildFile = $this->workspace.DIRECTORY_SEPARATOR
             .$this->getScriptFolder().DIRECTORY_SEPARATOR.'build.php';
 
-        TaskRunner::init($this, $buildFile);
-        $exitCode = TaskRunner::run($target);
+        $taskRunner = new TaskRunner($this, $buildFile);
+        $exitCode = $taskRunner->run($target);
 
         $this->stdout("\n");
 
