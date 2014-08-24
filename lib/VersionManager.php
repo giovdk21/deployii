@@ -21,6 +21,7 @@ class VersionManager
     /** @var array list of changes that break compatibility between DeploYii and the build script; newer on top */
     private static $_buildChangeList = [
         // (newer on top)
+        '0.4' => ['changed parameters order of the copyDir command'],
         '0.3' => ['loadJson prefix separator is now a dot'],
         '0.2' => [
             'renamed @scripts alias to @buildScripts',
