@@ -21,7 +21,7 @@ Requirements
 Getting started
 -------------
 
-1. get DeploYii: `composer create-project giovdk21/deployii deployii ~0.3`
+1. get DeploYii: `composer create-project giovdk21/deployii deployii ~0.4`
 2. go inside the deployii folder (`cd deployii/`)
 3. run `./deployii` to check the available options
 4. run `./deployii fetch example_basic` to try out the basic example
@@ -34,7 +34,7 @@ Getting started
 ```php
 return [
 
-  'deployiiVersion' => '0.3.0',
+  'deployiiVersion' => '0.4.0',
 
   'require' => [],
 
@@ -76,6 +76,7 @@ Available features
 - remove file
 - remove folder (recursive)
 - set files and folders permissions
+- archive/compress files and folders
 - path aliases to the workspace and the build script folders
 - parameters placeholders also work in paths
 - build execution log
