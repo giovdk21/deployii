@@ -14,6 +14,7 @@ namespace app\lib;
 
 
 use yii\helpers\Console;
+use yii\helpers\FileHelper;
 
 class VersionManager
 {
@@ -31,6 +32,9 @@ class VersionManager
 
     /** @var array list of changes that need to be performed to keep the DeploYii home folder up to date */
     private static $_homeChangeList = [
+        '0.4' => [
+            'add' => ['workspace' => 'Moved workspace directory to the home folder'],
+        ],
 //        '0.3' => [
 //            'add' => [],
 //            'mod' => [
@@ -112,24 +116,31 @@ class VersionManager
                         }
                     }
                 }
-                // files to be added: (if no manual actions are required)
+                // files/directories to be added: (if no manual actions are required)
                 if (empty($requiredActions) && isset($list['add'])) {
-                    foreach ($list['add'] as $relFilePath => $logMessage) {
-                        $srcFile = $homeDist.DIRECTORY_SEPARATOR.$relFilePath;
-                        $destFile = $home.DIRECTORY_SEPARATOR.$relFilePath;
-                        if (!file_exists($destFile) && file_exists($srcFile)) {
-                            $changeLog .= " - [{$version}] Adding {$relFilePath} ({$logMessage})\n";
-                            copy($srcFile, $destFile);
+                    foreach ($list['add'] as $relPath => $logMessage) {
+                        $srcPath = $homeDist.DIRECTORY_SEPARATOR.$relPath;
+                        $destPath = $home.DIRECTORY_SEPARATOR.$relPath;
+                        if (!is_dir($srcPath) && !file_exists($destPath) && file_exists($srcPath)) {
+                            $changeLog .= " - [{$version}] Adding {$relPath} ({$logMessage})\n";
+                            copy($srcPath, $destPath);
+                        } elseif (is_dir($srcPath) && !is_dir($destPath)) {
+                            $changeLog .= " - [{$version}] Adding directory: {$relPath} ({$logMessage})\n";
+                            FileHelper::copyDirectory($srcPath, $destPath);
+                        } elseif (is_dir($srcPath) && is_dir($destPath)) {
+                            $requiredActions .= " - [{$version}] {$relPath}: {$logMessage}\n";
                         }
                     }
                 }
-                // files to be removed: (if no manual actions are required)
+                // files/directories to be removed: (if no manual actions are required)
                 if (empty($requiredActions) && isset($list['rem'])) {
-                    foreach ($list['rem'] as $relFilePath => $logMessage) {
-                        $destFile = $home.DIRECTORY_SEPARATOR.$relFilePath;
-                        if (file_exists($destFile)) {
-                            $changeLog .= " - [{$version}] Removing {$relFilePath} ({$logMessage})\n";
-                            unlink($destFile);
+                    foreach ($list['rem'] as $relPath => $logMessage) {
+                        $destPath = $home.DIRECTORY_SEPARATOR.$relPath;
+                        if (!is_dir($destPath) && file_exists($destPath)) {
+                            $changeLog .= " - [{$version}] Removing {$relPath} ({$logMessage})\n";
+                            unlink($destPath);
+                        } elseif (is_dir($destPath)) {
+                            $requiredActions .= " - [{$version}] {$relPath}: {$logMessage}\n";
                         }
                     }
                 }
@@ -153,7 +164,7 @@ class VersionManager
                 .$message
                 ."---------------------------------------------------------------\n"
             );
-            sleep(1);
+            sleep(2);
         }
     }
 

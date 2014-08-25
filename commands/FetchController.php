@@ -10,6 +10,7 @@
 namespace app\commands;
 
 use app\lib\BaseConsoleController;
+use app\lib\Shell;
 use app\lib\TaskRunner;
 use yii\helpers\Console;
 use GitWrapper\GitWrapper;
@@ -49,8 +50,11 @@ class FetchController extends BaseConsoleController
         $projectInfo = (object)require(__DIR__.'/../projects_tmp/'.$projectId.'.php');
         // ------------------------
 
+        $home = Shell::getHomeDir();
+        $this->workspace = $home.DIRECTORY_SEPARATOR.'workspace'.DIRECTORY_SEPARATOR.$projectInfo->id."_".time();
 
-        $this->workspace = realpath(__DIR__.'/../workspace').DIRECTORY_SEPARATOR.$projectInfo->id."_".time();
+        $this->stdout('Fetching into ');
+        $this->stdout($this->workspace."\n", Console::FG_CYAN);
 
         $gitClone = false;
         try {

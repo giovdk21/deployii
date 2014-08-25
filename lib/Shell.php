@@ -15,6 +15,9 @@ use yii\helpers\FileHelper;
 class Shell
 {
 
+    /** @var bool True after the initHomeDir has been called */
+    private static $_initialised = false;
+
     /**
      * Returns the user home directory.
      *
@@ -51,18 +54,23 @@ class Shell
      */
     public static function initHomeDir()
     {
-        $home = self::getHomeDir();
+        if (!self::$_initialised) {
 
-        if (!is_dir($home)) {
+            $home = self::getHomeDir();
 
-            FileHelper::copyDirectory(__DIR__.'/../home-dist', $home);
+            if (!is_dir($home)) {
 
-            @unlink($home.'/README.md');
-            VersionManager::updateHomeVersion();
-        } else {
-            $homeVersion = VersionManager::getHomeVersion();
-            VersionManager::checkHomeVersion($homeVersion);
+                FileHelper::copyDirectory(__DIR__.'/../home-dist', $home);
+
+                @unlink($home.'/README.md');
+                VersionManager::updateHomeVersion();
+            } else {
+                $homeVersion = VersionManager::getHomeVersion();
+                VersionManager::checkHomeVersion($homeVersion);
+            }
         }
+
+        self::$_initialised = true;
     }
 
 }

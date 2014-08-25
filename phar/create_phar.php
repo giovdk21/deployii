@@ -78,6 +78,8 @@ class CreatePhar
 
         unset($phar);
 
+        echo "\n\n[!] Note: the generated phar file doens't fully work and it is not tested.\n\n";
+
         if (self::DEBUG) {
             $phar = new Phar(__DIR__.'/deployii.phar');
             $phar->extractTo(__DIR__.'/ext', null, true);
