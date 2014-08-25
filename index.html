@@ -47,19 +47,19 @@ or as deployment solution to package and deploy your code.</p>
 <a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting started</h2>
 
 <ol>
-<li>get DeploYii: <code>composer create-project giovdk21/deployii deployii ~0.3</code>
+<li>get DeploYii: <code>composer create-project giovdk21/deployii deployii ~0.4</code>
 </li>
 <li>go inside the deployii folder (<code>cd deployii/</code>)</li>
 <li>run <code>./deployii</code> to check the available options</li>
 <li>run <code>./deployii fetch example_basic</code> to try out the basic example</li>
-<li>run <code>./deployii run workspace/example_basic_[...]/basicExample/</code> to run it again, without re-downloading it</li>
-<li>run <code>./deployii run workspace/example_basic_[...]/basicExample/ clean</code> to run the clean target</li>
-<li>run <code>./deployii init workspace/helloWorld/</code> to create a new build script</li>
+<li>run <code>./deployii run ~/.deployii/workspace/example_basic_[...]/basicExample/</code> to run it again, without re-downloading it</li>
+<li>run <code>./deployii run ~/.deployii/workspace/example_basic_[...]/basicExample/ clean</code> to run the clean target</li>
+<li>run <code>./deployii init ~/.deployii/workspace/helloWorld/</code> to create a new build script</li>
 </ol><p><strong>For more information see the documentation on the <a href="https://github.com/giovdk21/deployii/wiki">wiki</a>.</strong></p>
 
 <div class="highlight highlight-php"><pre><span class="k">return</span> <span class="p">[</span>
 
-  <span class="s1">'deployiiVersion'</span> <span class="o">=&gt;</span> <span class="s1">'0.3.0'</span><span class="p">,</span>
+  <span class="s1">'deployiiVersion'</span> <span class="o">=&gt;</span> <span class="s1">'0.4.0'</span><span class="p">,</span>
 
   <span class="s1">'require'</span> <span class="o">=&gt;</span> <span class="p">[],</span>
 
@@ -102,6 +102,7 @@ or as deployment solution to package and deploy your code.</p>
 <li>remove file</li>
 <li>remove folder (recursive)</li>
 <li>set files and folders permissions</li>
+<li>archive/compress files and folders</li>
 <li>path aliases to the workspace and the build script folders</li>
 <li>parameters placeholders also work in paths</li>
 <li>build execution log</li>
