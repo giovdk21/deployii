@@ -11,6 +11,8 @@ use yii\helpers\Console;
 
 return [
 
+    'deployiiVersion' => '0.4.0',
+
     'require' => [],
 
     'params'  => [],

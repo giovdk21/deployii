@@ -175,6 +175,10 @@ class TaskRunner
             $recipeScript = $this->_loadRecipe($recipeName, false, true);
         }
 
+        $recipeVersion = (isset($recipeScript['deployiiVersion']) ? $recipeScript['deployiiVersion'] : '0.3.0');
+        VersionManager::checkRecipeVersion($recipeVersion, $recipeName);
+
+
         // Load requirements and initialise the extra parameters:
         if (!empty($recipeScript['require'])) {
             $this->_loadRequirements($recipeScript['require']);

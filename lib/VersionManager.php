@@ -46,12 +46,7 @@ class VersionManager
 //        ],
     ];
 
-    /**
-     * @param string $buildVersion the DeploYii version the build script has been created for
-     *
-     * @throws \yii\console\Exception if the build script version is outdated
-     */
-    public static function checkBuildVersion($buildVersion)
+    private static function _getBuildVersionChanges($scriptVersion)
     {
         $changeLog = '';
 
@@ -59,16 +54,46 @@ class VersionManager
 
         foreach ($changes as $version => $list) {
 
-            if (version_compare($version, $buildVersion, '>')) {
+            if (version_compare($version, $scriptVersion, '>')) {
                 foreach ($list as $logMessage) {
                     $changeLog .= " - [{$version}] ".$logMessage."\n";
                 }
             }
         }
 
+        return $changeLog;
+    }
+
+    /**
+     * @param string $buildVersion the DeploYii version the build script has been created for
+     *
+     * @throws \yii\console\Exception if the build script version is outdated
+     */
+    public static function checkBuildVersion($buildVersion)
+    {
+        $changeLog = self::_getBuildVersionChanges($buildVersion);
+
         if (!empty($changeLog)) {
             Log::throwException(
                 "Your build script is not compatible with DeploYii "
+                .DEPLOYII_VERSION.":\n".$changeLog
+            );
+        }
+    }
+
+    /**
+     * @param string $recipeVersion the DeploYii version the recipe script has been created for
+     * @param string $recipeName the name of the recipe being loaded
+     *
+     * @throws \yii\console\Exception if the recipe script version is outdated
+     */
+    public static function checkRecipeVersion($recipeVersion, $recipeName)
+    {
+        $changeLog = self::_getBuildVersionChanges($recipeVersion);
+
+        if (!empty($changeLog)) {
+            Log::throwException(
+                "Your recipe script \"{$recipeName}\" is not compatible with DeploYii "
                 .DEPLOYII_VERSION.":\n".$changeLog
             );
         }
