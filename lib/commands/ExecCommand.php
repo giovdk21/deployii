@@ -37,26 +37,30 @@ class ExecCommand extends BaseCommand
                 exec($cmdFull, $execOutput, $execResult);
             } else {
                 $execResult = 0;
-                $execOutput = ['dry run mode: nothing really happened'];
+                $execOutput = [];
             }
 
             if ($execResult !== 0) {
                 $this->controller->stderr("Error running ".$cmdString." ({$execResult})\n", Console::FG_RED);
             } else {
                 $this->controller->stdout('Running shell command: ');
-                $this->controller->stdout($cmdString."\n", Console::FG_YELLOW);
+                $this->controller->stdout($execCommand.' ', Console::FG_YELLOW);
+                $this->controller->stdout($execParams, Console::FG_BLUE);
                 if (!empty($execOutput)) {
                     $this->controller->stdout(
-                        '---------------------------------------------------------------'."\n"
+                        "\n".'---------------------------------------------------------------'."\n"
                     );
-                    $this->controller->stdout(implode("\n", $execOutput)."\n");
+                    $this->controller->stdout(implode("\n", $execOutput));
                     $this->controller->stdout(
-                        '---------------------------------------------------------------'."\n\n"
+                        "\n".'---------------------------------------------------------------'."\n"
                     );
+                } elseif ($this->controller->dryRun) {
+                    $this->controller->stdout(' [dry run]', Console::FG_YELLOW);
                 }
             }
         }
 
+        $this->controller->stdout("\n");
         return $execResult;
     }
 
