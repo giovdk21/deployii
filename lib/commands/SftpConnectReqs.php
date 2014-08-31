@@ -35,6 +35,7 @@ class SftpConnectReqs extends Behavior
             'sftpPassword'    => '',
             // sftp port
             'sftpPort'        => '22',
+            'sftpTimeout'     => '30',
             // sftp authentication method (password|key)
             'sftpAuthMethod'  => 'password',
             // path to the private key file
@@ -53,6 +54,25 @@ class SftpConnectReqs extends Behavior
     public static function checkRequirements(& $buildParams)
     {
         // ... nothing to do here yet.
+    }
+
+    /**
+     * @param string    $id         the connection id
+     * @param \Net_SFTP $connection the Net_SFTP instance
+     */
+    public function setConnection($id, $connection)
+    {
+        $this->connections[$id] = $connection;
+    }
+
+    /**
+     * @param string $id the connection id
+     *
+     * @return mixed
+     */
+    public function getConnection($id)
+    {
+        return $this->connections[$id];
     }
 
 } 

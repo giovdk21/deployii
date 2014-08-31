@@ -13,7 +13,7 @@
  * license: http://www.yiiframework.com/license/
  */
 
-define('DEPLOYII_VERSION', '0.4.0');
+define('DEPLOYII_VERSION', '0.5.0');
 define('DEPLOYII_STABLE', false); // Whether the current version/release is considered stable or not
 
 defined('YII_DEBUG') or define('YII_DEBUG', true);

@@ -10,7 +10,7 @@
 namespace app\lib\commands;
 
 use app\lib\BaseCommand;
-use yii\console\Exception;
+use app\lib\Log;
 use yii\helpers\Console;
 use Yii;
 use Net_SFTP;
@@ -32,19 +32,23 @@ class SftpConnectCommand extends BaseCommand
         $username = $params['sftpUsername'];
         $password = $params['sftpPassword'];
         $port = $params['sftpPort'];
+        $timeout = $params['sftpTimeout'];
         $authMethod = $params['sftpAuthMethod'];
         $keyFile = $params['sftpKeyFile'];
         $keyPassword = $params['sftpKeyPassword'];
 
 
-        if (empty($connectionId)) {
-            throw new Exception('sftpConnect: Please specify a valid connection ID and host');
+        if (empty($host)) {
+            Log::throwException('sftpConnect: Please specify a valid host');
         }
 
-        $controller->stdout('Opening connection with ' . $username . '@' . $host . ':' . $port . " ...\n");
+        $connectionString = $username . '@' . $host . ':' . $port;
+        $controller->stdout(" ".$connectionId." ", Console::BG_BLUE, Console::FG_BLACK);
+        $controller->stdout(' Opening connection with ' . $connectionString . " ...");
 
         if (!$controller->dryRun) {
-            $sftp = new Net_SFTP($host, $port);
+
+            $sftp = new Net_SFTP($host, $port, $timeout);
 
             switch ($authMethod) {
 
@@ -58,7 +62,11 @@ class SftpConnectCommand extends BaseCommand
             }
 
             if ($res) {
-                $controller->connections[$connectionId] = $sftp;
+                // the setConnection method is provided by the SftpConnectReqs Behavior
+                /** @noinspection PhpUndefinedMethodInspection */
+                $controller->setConnection($connectionId, $sftp);
+            } else {
+                Log::throwException('Unable to connect with '.$connectionString);
             }
         } else {
             $controller->stdout(' [dry run]', Console::FG_YELLOW);
