@@ -32,7 +32,9 @@ class SftpDisconnectCommand extends BaseCommand
             Log::throwException('sftpDisconnect: Please specify a valid connection id');
         }
 
-        $controller->stdout(" ".$connectionId." ", Console::BG_BLUE, Console::FG_BLACK);
+        /** @noinspection PhpUndefinedMethodInspection (provided by the SftpConnectReqs Behavior) */
+        $connParams = $controller->getConnectionParams($connectionId);
+        $controller->stdout(" ".$connectionId." ", $connParams['sftpLabelColor'], Console::FG_BLACK);
         $controller->stdout(' Closing connection ');
 
         if (!$controller->dryRun) {

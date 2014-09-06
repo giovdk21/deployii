@@ -53,7 +53,9 @@ class SftpGetCommand extends BaseCommand
             Log::throwException('sftpGet: remotePath cannot be empty');
         }
 
-        $controller->stdout(" ".$this->_connectionId." ", Console::BG_BLUE, Console::FG_BLACK);
+        /** @noinspection PhpUndefinedMethodInspection (provided by the SftpConnectReqs Behavior) */
+        $connParams = $controller->getConnectionParams($this->_connectionId);
+        $controller->stdout(" ".$this->_connectionId." ", $connParams['sftpLabelColor'], Console::FG_BLACK);
         $controller->stdout(' Downloading to: ');
         $controller->stdout($this->_destPath, Console::FG_CYAN);
 

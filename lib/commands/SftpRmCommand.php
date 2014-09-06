@@ -34,7 +34,9 @@ class SftpRmCommand extends BaseCommand
             Log::throwException('sftpRm: Please specify a valid connection id and file');
         }
 
-        $controller->stdout(" ".$connectionId." ", Console::BG_BLUE, Console::FG_BLACK);
+        /** @noinspection PhpUndefinedMethodInspection (provided by the SftpConnectReqs Behavior) */
+        $connParams = $controller->getConnectionParams($connectionId);
+        $controller->stdout(" ".$connectionId." ", $connParams['sftpLabelColor'], Console::FG_BLACK);
         $controller->stdout(' Removing file ');
         $controller->stdout($file, Console::FG_CYAN);
 

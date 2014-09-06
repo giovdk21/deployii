@@ -35,7 +35,9 @@ class SftpMkdirCommand extends BaseCommand
             Log::throwException('sftpMkdir: Please specify a valid connection id and directory');
         }
 
-        $controller->stdout(" ".$connectionId." ", Console::BG_BLUE, Console::FG_BLACK);
+        /** @noinspection PhpUndefinedMethodInspection (provided by the SftpConnectReqs Behavior) */
+        $connParams = $controller->getConnectionParams($connectionId);
+        $controller->stdout(" ".$connectionId." ", $connParams['sftpLabelColor'], Console::FG_BLACK);
         $controller->stdout(' Creating directory ');
         $controller->stdout($dir, Console::FG_CYAN);
 

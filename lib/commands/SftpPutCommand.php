@@ -57,7 +57,9 @@ class SftpPutCommand extends BaseCommand
             Log::throwException('sftpPut: srcList and srcBaseDir cannot be empty');
         }
 
-        $controller->stdout(" ".$this->_connectionId." ", Console::BG_BLUE, Console::FG_BLACK);
+        /** @noinspection PhpUndefinedMethodInspection (provided by the SftpConnectReqs Behavior) */
+        $connParams = $controller->getConnectionParams($this->_connectionId);
+        $controller->stdout(" ".$this->_connectionId." ", $connParams['sftpLabelColor'], Console::FG_BLACK);
         $controller->stdout(' Uploading files to ');
         $controller->stdout($this->_destDir, Console::FG_CYAN);
 

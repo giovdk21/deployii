@@ -34,7 +34,9 @@ class SftpRmdirCommand extends BaseCommand
             Log::throwException('sftpRmdir: Please specify a valid connection id and directory');
         }
 
-        $controller->stdout(" ".$connectionId." ", Console::BG_BLUE, Console::FG_BLACK);
+        /** @noinspection PhpUndefinedMethodInspection (provided by the SftpConnectReqs Behavior) */
+        $connParams = $controller->getConnectionParams($connectionId);
+        $controller->stdout(" ".$connectionId." ", $connParams['sftpLabelColor'], Console::FG_BLACK);
         $controller->stdout(' Removing directory '.($recursive ? '(recursive) ' : ''));
         $controller->stdout($dir, Console::FG_CYAN);
 

@@ -36,7 +36,9 @@ class SftpListCommand extends BaseCommand
             Log::throwException('sftpList: Please specify a valid connection id');
         }
 
-        $controller->stdout(" ".$connectionId." ", Console::BG_BLUE, Console::FG_BLACK);
+        /** @noinspection PhpUndefinedMethodInspection (provided by the SftpConnectReqs Behavior) */
+        $connParams = $controller->getConnectionParams($connectionId);
+        $controller->stdout(" ".$connectionId." ", $connParams['sftpLabelColor'], Console::FG_BLACK);
         $controller->stdout(' Listing directory ');
         $controller->stdout($dir, Console::FG_CYAN);
 

@@ -12,14 +12,18 @@
 
 namespace app\lib\commands;
 
+use app\lib\Log;
 use yii\base\Behavior;
+use yii\helpers\Console;
 
 class SftpConnectReqs extends Behavior
 {
 
-
     /** @var array list of active connections */
     public $connections = [];
+
+    /** @var array parameters of the active connections */
+    private $_connectionParams = [];
 
     /**
      * @return array the list of command options => default values
@@ -42,6 +46,7 @@ class SftpConnectReqs extends Behavior
             'sftpKeyFile'     => '',
             // password of the key file
             'sftpKeyPassword' => '',
+            'sftpLabelColor' => Console::BG_BLUE,
         ];
     }
 
@@ -72,7 +77,29 @@ class SftpConnectReqs extends Behavior
      */
     public function getConnection($id)
     {
+        if (!isset($this->connections[$id])) {
+            Log::throwException('Invalid connection: '.$id);
+        }
         return $this->connections[$id];
+    }
+
+    /**
+     * @param string $id     the connection id
+     * @param array  $params the connection parameters
+     */
+    public function setConnectionParams($id, $params)
+    {
+        $this->_connectionParams[$id] = $params;
+    }
+
+    /**
+     * @param string $id the connection id
+     *
+     * @return array
+     */
+    public function getConnectionParams($id)
+    {
+        return (isset($this->_connectionParams[$id]) ? $this->_connectionParams[$id] : []);
     }
 
 } 

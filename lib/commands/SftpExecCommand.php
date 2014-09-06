@@ -37,6 +37,9 @@ class SftpExecCommand extends BaseCommand
             Log::throwException('sftpExec: Please specify a valid connection id and directory');
         }
 
+        /** @noinspection PhpUndefinedMethodInspection (provided by the SftpConnectReqs Behavior) */
+        $connParams = $controller->getConnectionParams($connectionId);
+
         $cmdString = trim($execCommand.' '.$execParams);
         $cmdFull = trim($execCommand.' '.$execParams.' '.$execHiddenParams);
 
@@ -54,7 +57,7 @@ class SftpExecCommand extends BaseCommand
             $execOutput = '';
         }
 
-        $controller->stdout(" ".$connectionId." ", Console::BG_BLUE, Console::FG_BLACK);
+        $controller->stdout(" ".$connectionId." ", $connParams['sftpLabelColor'], Console::FG_BLACK);
         $controller->stdout(" ");
         if ($execResult !== 0) {
             $this->controller->stderr("Error running ".$cmdString." ({$execResult})\n", Console::FG_RED);

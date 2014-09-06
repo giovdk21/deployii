@@ -39,7 +39,9 @@ class SftpMvCommand extends BaseCommand
             throw new Exception('sftpMv: Origin and destination cannot be empty');
         }
 
-        $this->controller->stdout(" ".$connectionId." ", Console::BG_BLUE, Console::FG_BLACK);
+        /** @noinspection PhpUndefinedMethodInspection (provided by the SftpConnectReqs Behavior) */
+        $connParams = $this->controller->getConnectionParams($connectionId);
+        $this->controller->stdout(" ".$connectionId." ", $connParams['sftpLabelColor'], Console::FG_BLACK);
         $this->controller->stdout(
             " Move (overwrite: ".($overwrite ? 'yes' : 'no').") \n ".$pathFrom." to \t ".$pathTo
         );

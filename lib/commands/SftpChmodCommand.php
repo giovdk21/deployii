@@ -33,6 +33,9 @@ class SftpChmodCommand extends BaseCommand
             Log::throwException('sftpChmod: Please specify a valid connection id');
         }
 
+        /** @noinspection PhpUndefinedMethodInspection (provided by the SftpConnectReqs Behavior) */
+        $connParams = $controller->getConnectionParams($connectionId);
+
         foreach ($permList as $mode => $pathList) {
 
             $mode = (is_string($mode) ? octdec((int)$mode) : $mode);
@@ -40,7 +43,7 @@ class SftpChmodCommand extends BaseCommand
             foreach ($pathList as $path) {
 //                $path = $taskRunner->parsePath($path); // TODO: parse parameters
 
-                $controller->stdout(" ".$connectionId." ", Console::BG_BLUE, Console::FG_BLACK);
+                $controller->stdout(" ".$connectionId." ", $connParams['sftpLabelColor'], Console::FG_BLACK);
                 $controller->stdout(" Changing permissions of {$path} to ");
                 $controller->stdout('0'.decoct($mode), Console::FG_CYAN);
 

@@ -33,7 +33,9 @@ class SftpChdirCommand extends BaseCommand
             Log::throwException('sftpChdir: Please specify a valid connection id and directory');
         }
 
-        $controller->stdout(" ".$connectionId." ", Console::BG_BLUE, Console::FG_BLACK);
+        /** @noinspection PhpUndefinedMethodInspection (provided by the SftpConnectReqs Behavior) */
+        $connParams = $controller->getConnectionParams($connectionId);
+        $controller->stdout(" ".$connectionId." ", $connParams['sftpLabelColor'], Console::FG_BLACK);
         $controller->stdout(' Changing directory to ');
         $controller->stdout($dir, Console::FG_CYAN);
 

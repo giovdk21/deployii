@@ -12,12 +12,15 @@ namespace app\lib\commands;
 use app\lib\BaseCommand;
 use app\lib\Log;
 use Crypt_RSA;
+use yii\console\Exception;
 use yii\helpers\Console;
 use Yii;
 use Net_SFTP;
 
 class SftpConnectCommand extends BaseCommand
 {
+
+    private $_connectionId = '';
 
     /**
      * @inheritdoc
@@ -27,16 +30,21 @@ class SftpConnectCommand extends BaseCommand
         $controller = $this->controller;
 
         $res = false;
-        $connectionId = (!empty($cmdParams[0]) ? $cmdParams[0] : '');
+        $this->_connectionId = (!empty($cmdParams[0]) ? $cmdParams[0] : '');
 
-        $host = $params['sftpHost'];
-        $username = $params['sftpUsername'];
-        $password = $params['sftpPassword'];
-        $port = $params['sftpPort'];
-        $timeout = $params['sftpTimeout'];
-        $authMethod = $params['sftpAuthMethod'];
-        $keyFile = $params['sftpKeyFile'];
-        $keyPassword = $params['sftpKeyPassword'];
+        $connectionParams = $this->_configureFrom($params);
+        /** @noinspection PhpUndefinedMethodInspection (provided by the SftpConnectReqs Behavior) */
+        $controller->setConnectionParams($this->_connectionId, $connectionParams);
+
+        $host = $connectionParams['sftpHost'];
+        $username = $connectionParams['sftpUsername'];
+        $password = $connectionParams['sftpPassword'];
+        $port = $connectionParams['sftpPort'];
+        $timeout = $connectionParams['sftpTimeout'];
+        $authMethod = $connectionParams['sftpAuthMethod'];
+        $keyFile = $connectionParams['sftpKeyFile'];
+        $keyPassword = $connectionParams['sftpKeyPassword'];
+        $bgColor = $connectionParams['sftpLabelColor'];
 
 
         if (empty($host)) {
@@ -44,7 +52,7 @@ class SftpConnectCommand extends BaseCommand
         }
 
         $connectionString = $username . '@' . $host . ':' . $port;
-        $controller->stdout(" ".$connectionId." ", Console::BG_BLUE, Console::FG_BLACK);
+        $controller->stdout(" ".$this->_connectionId." ", $bgColor, Console::FG_BLACK);
         $controller->stdout(' Opening connection with ' . $connectionString . " ...");
 
         if (!$controller->dryRun) {
@@ -78,7 +86,7 @@ class SftpConnectCommand extends BaseCommand
             if ($res) {
                 // the setConnection method is provided by the SftpConnectReqs Behavior
                 /** @noinspection PhpUndefinedMethodInspection */
-                $controller->setConnection($connectionId, $sftp);
+                $controller->setConnection($this->_connectionId, $sftp);
             } else {
                 $controller->stdout("\n");
                 Log::throwException('Unable to connect with '.$connectionString);
@@ -88,6 +96,40 @@ class SftpConnectCommand extends BaseCommand
         }
 
         $controller->stdout("\n");
+        return $res;
+    }
+
+    /**
+     * If there are some connection parameters defined specifically for the current connection id,
+     * it will take those instead of the ones available in the build script / config.
+     *
+     * Example:
+     * 'sftpAuthMethod' => 'key',
+     * 'sftpUsername'   => 'testuser',
+     * 'conn1.sftpAuthMethod' => 'password',
+     * 'conn1.sftpPassword'   => '...',
+     *
+     *
+     * @param array $params The build parameters
+     *
+     * @return array
+     */
+    private function _configureFrom($params)
+    {
+        $res = [];
+
+        if (empty($this->_connectionId)) {
+            Log::throwException('sftpConnect: caling '.__METHOD__.' without a valid connection id set.');
+        }
+
+        foreach($params as $key => $value) {
+            if (isset($params[$this->_connectionId.'.'.$key])) {
+                $res[$key] = $params[$this->_connectionId.'.'.$key];
+            } else {
+                $res[$key] = $value;
+            }
+        }
+
         return $res;
     }
 
