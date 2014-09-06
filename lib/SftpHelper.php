@@ -80,8 +80,8 @@ class SftpHelper
         $connId = $this->_connId;
 
         Log::logger()->addDebug(
-            'Performing '.__METHOD__.' // method: {method}',
-            ['method' => $function]
+            'Performing '.__METHOD__.' // function: {function}',
+            ['function' => $function]
         );
 
         if (isset(self::$cache[$connId])) {
@@ -106,13 +106,37 @@ class SftpHelper
             $size = $this->_connection->size($path);
             Log::logger()->addDebug(
                 'Performing '.__METHOD__.' // size: {size}',
-                ['size' => $size]
+                ['size' => $size, 'path' => $path]
             );
             $res = ($size !== false);
             $this->_addToCache(__FUNCTION__, $path, $res);
         }
 
         return $res;
+    }
+
+    /**
+     * Returns the stat information of the given path.
+     * It also sets the cache for the fileExists command.
+     *
+     * @param string $path
+     *
+     * @return false|array
+     */
+    public function stat($path)
+    {
+        $stat = $this->_getFromCache(__FUNCTION__, $path);
+        if ($stat === null) {
+            $stat = $this->_connection->stat($path);
+            Log::logger()->addDebug(
+                'Performing '.__METHOD__.' // result: {stat}',
+                ['stat' => var_export($stat, true), 'path' => $path]
+            );
+            $this->_addToCache(__FUNCTION__, $path, $stat);
+            $this->_addToCache('fileExists', $path, (isset($stat['size']) ? true : false));
+        }
+
+        return $stat;
     }
 
     /**
@@ -127,15 +151,7 @@ class SftpHelper
         $res = $this->_getFromCache(__FUNCTION__, $cacheKey);
 
         if ($res === null) {
-            $stat = $this->_getFromCache('stat', $path);
-            if ($stat === null) {
-                $stat = $this->_connection->stat($path);
-                Log::logger()->addDebug(
-                    'Performing connection->stat // result: {stat}',
-                    ['stat' => var_export($stat, true)]
-                );
-                $this->_addToCache('stat', $path, $stat);
-            }
+            $stat = $this->stat($path);
 
             $typeVal = -1;
             switch ($type) {
@@ -151,6 +167,11 @@ class SftpHelper
 
             $res = ($stat && $stat['type'] === $typeVal);
             $this->_addToCache(__FUNCTION__, $cacheKey, $res);
+
+            Log::logger()->addDebug(
+                'Performing '.__METHOD__.' ('.$type.') // result: {res}',
+                ['res' => $res, 'path' => $path]
+            );
         }
 
         return $res;
@@ -163,14 +184,7 @@ class SftpHelper
      */
     public function isDir($path)
     {
-        $res = $this->isType($path, 'dir');
-
-        Log::logger()->addDebug(
-            'Performing '.__METHOD__.' // result: {res}',
-            ['res' => $res]
-        );
-
-        return $res;
+        return $this->isType($path, 'dir');
     }
 
     /**
@@ -180,14 +194,7 @@ class SftpHelper
      */
     public function isFile($path)
     {
-        $res = $this->isType($path, 'file');
-
-        Log::logger()->addDebug(
-            'Performing '.__METHOD__.' // result: {res}',
-            ['res' => $res]
-        );
-
-        return $res;
+        return $this->isType($path, 'file');
     }
 
 } 

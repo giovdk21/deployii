@@ -42,6 +42,7 @@ class SftpGetCommand extends BaseCommand
         $remotePath = (!empty($cmdParams[1]) ? $cmdParams[1] : []);
         $this->_destPath = (!empty($cmdParams[2]) ? $taskRunner->parsePath($cmdParams[2]) : '');
         $this->_overwrite = (!empty($cmdParams[3]) ? $cmdParams[3] : $this->_overwrite);
+        // TODO: exclude / filter (?)
 
 
         if (empty($this->_connectionId) || empty($this->_destPath)) {
