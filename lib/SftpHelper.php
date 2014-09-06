@@ -33,11 +33,11 @@ class SftpHelper
     }
 
     /**
-     * @param string $method name of the method executed to get the result
+     * @param string $function name of the method executed to get the result
      * @param string $key    unique identifier of the method parameters
      * @param mixed  $value  the retrieved value
      */
-    private function _addToCache($method, $key, $value)
+    private function _addToCache($function, $key, $value)
     {
         $connId = $this->_connId;
 
@@ -45,26 +45,26 @@ class SftpHelper
             self::$cache[$connId] = [];
         }
 
-        if (!isset(self::$cache[$connId][$method])) {
-            self::$cache[$connId][$method] = [];
+        if (!isset(self::$cache[$connId][$function])) {
+            self::$cache[$connId][$function] = [];
         }
 
-        self::$cache[$connId][$method][$key] = $value;
+        self::$cache[$connId][$function][$key] = $value;
     }
 
     /**
-     * @param string $method name of the method executed to get the result
+     * @param string $function name of the method executed to get the result
      * @param string $key    unique identifier of the method parameters
      *
      * @return null|mixed Returns null if the method result hasn't been cashed yet
      */
-    private function _getFromCache($method, $key)
+    private function _getFromCache($function, $key)
     {
         $connId = $this->_connId;
         $res = null;
 
-        if (isset(self::$cache[$connId][$method][$key])) {
-            $res = self::$cache[$connId][$method][$key];
+        if (isset(self::$cache[$connId][$function][$key])) {
+            $res = self::$cache[$connId][$function][$key];
         }
 
         return $res;
@@ -73,21 +73,21 @@ class SftpHelper
     /**
      * Delete the cache for the given connection ID and/or method
      *
-     * @param string $method (optional) name of the method executed to get the result
+     * @param string $function (optional) name of the method executed to get the result
      */
-    public function flushCache($method = '')
+    public function flushCache($function = '')
     {
         $connId = $this->_connId;
 
         Log::logger()->addDebug(
             'Performing '.__METHOD__.' // method: {method}',
-            ['method' => $method]
+            ['method' => $function]
         );
 
         if (isset(self::$cache[$connId])) {
-            if (!empty($method) && isset(self::$cache[$connId][$method])) {
-                self::$cache[$connId][$method] = [];
-            } elseif (empty($method)) {
+            if (!empty($function) && isset(self::$cache[$connId][$function])) {
+                self::$cache[$connId][$function] = [];
+            } elseif (empty($function)) {
                 self::$cache[$connId] = [];
             }
         }
