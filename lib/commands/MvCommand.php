@@ -47,12 +47,12 @@ class MvCommand extends BaseCommand
             }
 
             $this->controller->stdout(
-                "Move (overwrite: ".($overwrite ? 'yes' : 'no').") \n  ".$pathFrom." to \n  ".$pathTo
+                "Move (overwrite: ".($overwrite ? 'yes' : 'no').") \n ".$pathFrom." to \n ".$pathTo
             );
 
             if (!$this->controller->dryRun) {
 
-                if (is_dir($pathFrom) && is_dir($pathTo) && !$overwrite) {
+                if (!$overwrite && is_dir($pathFrom) && is_dir($pathTo)) {
 
                     if (!file_exists($insidePathTo)) {
                         // not overwriting; copy the source directory into the destination folder:
@@ -64,19 +64,16 @@ class MvCommand extends BaseCommand
                         );
                     }
 
-                } elseif (is_file($pathFrom) && is_file($pathTo) && !$overwrite) {
+                } elseif (!$overwrite && is_file($pathFrom) && is_file($pathTo)) {
                     $this->controller->stdout("\n");
                     $this->controller->warn("Destination file {$pathTo} already exists; not overwriting");
                 } elseif (is_dir($pathFrom) && is_file($pathTo)) {
                     $this->controller->stdout("\n");
-                    $this->controller->stderr(
-                        "Trying to move a directory to a file: {$pathTo}\n",
-                        Console::FG_RED
-                    );
+                    $this->controller->stderr("Trying to move a directory to a file: {$pathTo}", Console::FG_RED);
                 } elseif (
-                    (is_dir($pathFrom) && is_dir($pathTo) && $overwrite)
-                    || (is_file($pathFrom) && is_file($pathTo) && $overwrite)
-                    || !file_exists($pathTo)
+                    !file_exists($pathTo)
+                    || ($overwrite && is_dir($pathFrom) && is_dir($pathTo))
+                    || ($overwrite && is_file($pathFrom) && is_file($pathTo))
                 ) {
                     // if destination exists, overwrite it with the source file/dir
                     // note: if pathTo is a directory, it has to be empty in order to be overwritten
