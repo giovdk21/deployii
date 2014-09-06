@@ -37,7 +37,7 @@ class SftpConnectReqs extends Behavior
             'sftpPort'        => '22',
             'sftpTimeout'     => '30',
             // sftp authentication method (password|key)
-            'sftpAuthMethod'  => 'password',
+            'sftpAuthMethod'  => 'key',
             // path to the private key file
             'sftpKeyFile'     => '',
             // password of the key file

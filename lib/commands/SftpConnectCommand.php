@@ -11,6 +11,7 @@ namespace app\lib\commands;
 
 use app\lib\BaseCommand;
 use app\lib\Log;
+use Crypt_RSA;
 use yii\helpers\Console;
 use Yii;
 use Net_SFTP;
@@ -57,7 +58,20 @@ class SftpConnectCommand extends BaseCommand
                     break;
 
                 case 'key':
-                    die('Not yet implemented!');
+                    $key = new Crypt_RSA();
+
+                    if (!empty($keyPassword)) {
+                        $key->setPassword($keyPassword);
+                    }
+
+                    if (!empty($keyFile) && file_exists($keyFile)) {
+                        $key->loadKey(file_get_contents($keyFile));
+                    } else {
+                        $controller->stdout("\n");
+                        Log::throwException('sftpConnect: keyFile not found ('.$keyFile.')');
+                    }
+
+                    $res = $sftp->login($username, $key);
                     break;
             }
 
@@ -66,6 +80,7 @@ class SftpConnectCommand extends BaseCommand
                 /** @noinspection PhpUndefinedMethodInspection */
                 $controller->setConnection($connectionId, $sftp);
             } else {
+                $controller->stdout("\n");
                 Log::throwException('Unable to connect with '.$connectionString);
             }
         } else {
