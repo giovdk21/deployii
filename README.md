@@ -21,7 +21,7 @@ Requirements
 Getting started
 -------------
 
-1. get DeploYii: `composer create-project giovdk21/deployii deployii ~0.4`
+1. get DeploYii: `composer create-project giovdk21/deployii deployii ~0.5`
 2. go inside the deployii folder (`cd deployii/`)
 3. run `./deployii` to check the available options
 4. run `./deployii fetch example_basic` to try out the basic example
@@ -34,7 +34,7 @@ Getting started
 ```php
 return [
 
-  'deployiiVersion' => '0.4.0',
+  'deployiiVersion' => '0.5.0',
 
   'require' => [],
 
@@ -75,8 +75,15 @@ Available features
 - create folder
 - remove file
 - remove folder (recursive)
+- move files and folders
 - set files and folders permissions
 - archive/compress files and folders
+- SFTP support (put, get, mkdir, chmod, mv, rm, rmdir, ...)
+- SFTP authentication via RSA key
+- SFTP exec (exec remote command via ssh)
+- FTP support (passive mode only)
+- multiple SFTP / FTP connections
+- replace in files
 - path aliases to the workspace and the build script folders
 - parameters placeholders also work in paths
 - build execution log
