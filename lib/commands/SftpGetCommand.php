@@ -63,7 +63,7 @@ class SftpGetCommand extends BaseCommand
             // the getConnection method is provided by the SftpConnectReqs Behavior
             /** @noinspection PhpUndefinedMethodInspection */
             $this->_connection = $controller->getConnection($this->_connectionId);
-            $this->_sftpHelper = new SftpHelper($this->_connectionId, $this->_connection);
+            $this->_sftpHelper = new SftpHelper($this->_connectionId, $this->_connection, $connParams);
         }
 
         $this->_get($remotePath);
@@ -97,7 +97,7 @@ class SftpGetCommand extends BaseCommand
                     Log::throwException('sftpGet: remotePath is a directory, therefore destination has to be a directory too');
                 }
 
-                $list = $this->_connection->nlist($remotePath);
+                $list = $this->_sftpHelper->nlist($remotePath);
                 $remoteDirName = basename($remotePath);
                 $newSubDir = $destPath.DIRECTORY_SEPARATOR.$remoteDirName;
                 $destRelPathArr[] = $remoteDirName;
@@ -125,11 +125,12 @@ class SftpGetCommand extends BaseCommand
                 }
 
                 if ($this->_overwrite || !file_exists($destFile)) {
-                    $this->_connection->get($remotePath, $destFile);
+                    $this->_sftpHelper->get($remotePath, $destFile);
                 } else {
                     $this->controller->stdout(' [skipped]', Console::FG_PURPLE);
                 }
             } else {
+                $this->controller->stdout("\n");
                 $this->controller->warn('Not found: '.$remotePath);
             }
 

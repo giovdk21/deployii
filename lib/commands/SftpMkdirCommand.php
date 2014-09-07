@@ -47,25 +47,10 @@ class SftpMkdirCommand extends BaseCommand
             /** @noinspection PhpUndefinedMethodInspection */
             /** @var $connection Net_SFTP|resource */
             $connection = $controller->getConnection($connectionId);
+            $sftpHelper = new SftpHelper($connectionId, $connection, $connParams);
 
-            switch ($connParams['sftpConnectionType']) {
-
-                case SftpHelper::TYPE_SFTP:
-                    $res = $connection->mkdir($dir, $mode, $recursive);
-                    break;
-
-                case SftpHelper::TYPE_FTP:
-                    // TODO: support recursive
-                    $mode = ($mode === -1 ? 0755 : $mode);
-                    $res = @ftp_mkdir($connection, $dir);
-                    @ftp_chmod($connection, $mode, $dir);
-                    break;
-
-                default:
-                    $controller->stdout("\n");
-                    Log::throwException('Unsupported connection type: '.$connParams['sftpConnectionType']);
-                    break;
-            }
+            $res = $sftpHelper->mkdir($dir, $mode, $recursive);
+            $sftpHelper->flushCache();
         } else {
             $controller->stdout(' [dry run]', Console::FG_YELLOW);
         }

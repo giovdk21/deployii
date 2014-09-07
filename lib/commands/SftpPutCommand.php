@@ -89,7 +89,7 @@ class SftpPutCommand extends BaseCommand
             // the getConnection method is provided by the SftpConnectReqs Behavior
             /** @noinspection PhpUndefinedMethodInspection */
             $this->_connection = $controller->getConnection($this->_connectionId);
-            $this->_sftpHelper = new SftpHelper($this->_connectionId, $this->_connection);
+            $this->_sftpHelper = new SftpHelper($this->_connectionId, $this->_connection, $connParams);
 
             if (!is_dir($this->_srcBaseDir) || !$this->_sftpHelper->isDir($this->_destDir)) {
                 $this->controller->stdout("\n");
@@ -128,17 +128,17 @@ class SftpPutCommand extends BaseCommand
                 $files = FileHelper::findFiles($srcFullPath, $this->_options);
 
                 foreach ($files as $foundPath) {
-                    $relPath = substr($foundPath, strlen($this->_srcBaseDir)+1);
+                    $relativePath = substr($foundPath, strlen($this->_srcBaseDir)+1);
 
-                    $this->_connection->mkdir($destRelPath);
-                    $this->_put($foundPath, $relPath, $this->_srcBaseDir, $this->_destDir, $this->_options);
+                    $this->_sftpHelper->mkdir($destRelPath);
+                    $this->_put($foundPath, $relativePath, $this->_srcBaseDir, $this->_destDir, $this->_options);
                 }
             } elseif (FileHelper::filterPath($srcFullPath, $this->_options)) {
-                $this->_connection->mkdir(dirname($destRelPath), -1, true);
+                $this->_sftpHelper->mkdir(dirname($destRelPath), -1, true);
 
                 if ($this->_overwrite || !$this->_sftpHelper->fileExists($destRelPath)) {
 
-                    $res = $this->_connection->put($destRelPath, $srcFullPath, NET_SFTP_LOCAL_FILE);
+                    $res = $this->_sftpHelper->put($destRelPath, $srcFullPath);
                     if (!$res) {
                         Log::logger()->addError(
                             'sftpPut: error uploading file {from} to {to}',

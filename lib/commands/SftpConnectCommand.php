@@ -92,8 +92,20 @@ class SftpConnectCommand extends BaseCommand
                 case SftpHelper::TYPE_FTP:
                     // $authMethod ignored: it is always password based for FTP connections
 
+                    $res = false;
                     $connection = ftp_connect($host, $port, $timeout);
-                    $res = ftp_login($connection, $username, $password);
+                    if ($connection) {
+                        $res = ftp_login($connection, $username, $password);
+                    }
+
+                    // the FTP server must support passive mode as we are using the FTP wrappers:
+                    /* @link http://php.net/manual/en/wrappers.ftp.php */
+                    if ($res && !@ftp_pasv($connection, true)) { // enabling passive mode
+                        ftp_close($connection);
+                        $controller->stdout("\n");
+                        Log::throwException('The server does not support passive mode');
+                    }
+
                     break;
 
                 default:

@@ -11,6 +11,7 @@ namespace app\lib\commands;
 
 use app\lib\BaseCommand;
 use app\lib\Log;
+use app\lib\SftpHelper;
 use yii\helpers\Console;
 use Yii;
 use Net_SFTP;
@@ -46,12 +47,12 @@ class SftpExecCommand extends BaseCommand
         if (!$controller->dryRun) {
             // the getConnection method is provided by the SftpConnectReqs Behavior
             /** @noinspection PhpUndefinedMethodInspection */
-            /** @var $connection Net_SFTP */
+            /** @var $connection Net_SFTP|resource */
             $connection = $controller->getConnection($connectionId);
+            $sftpHelper = new SftpHelper($connectionId, $connection, $connParams);
 
-            $sftpDir = $connection->pwd();
-            $execOutput = $connection->exec('cd '.$sftpDir.' && '.$cmdFull);
-            $execResult = $connection->getExitStatus();
+            $execOutput = $sftpHelper->exec($cmdFull);
+            $execResult = $sftpHelper->getExecExitStatus();
         } else {
             $execResult = 0;
             $execOutput = '';

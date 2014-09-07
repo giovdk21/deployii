@@ -11,6 +11,7 @@ namespace app\lib\commands;
 
 use app\lib\BaseCommand;
 use app\lib\Log;
+use app\lib\SftpHelper;
 use yii\helpers\Console;
 use Yii;
 use Net_SFTP;
@@ -45,9 +46,11 @@ class SftpListCommand extends BaseCommand
         if (!$controller->dryRun) {
             // the getConnection method is provided by the SftpConnectReqs Behavior
             /** @noinspection PhpUndefinedMethodInspection */
-            /** @var $connection Net_SFTP */
+            /** @var $connection Net_SFTP|resource */
             $connection = $controller->getConnection($connectionId);
-            $list = $connection->nlist($dir, $recursive);
+            $sftpHelper = new SftpHelper($connectionId, $connection, $connParams);
+
+            $list = $sftpHelper->nlist($dir, $recursive, true);
             // TODO: use SftpHelper to store the list
         } else {
             $controller->stdout(' [dry run]', Console::FG_YELLOW);

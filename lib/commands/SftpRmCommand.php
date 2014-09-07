@@ -43,12 +43,12 @@ class SftpRmCommand extends BaseCommand
         if (!$controller->dryRun) {
             // the getConnection method is provided by the SftpConnectReqs Behavior
             /** @noinspection PhpUndefinedMethodInspection */
-            /** @var $connection Net_SFTP */
+            /** @var $connection Net_SFTP|resource */
             $connection = $controller->getConnection($connectionId);
-            $sftpHelper = new SftpHelper($connectionId, $connection);
+            $sftpHelper = new SftpHelper($connectionId, $connection, $connParams);
 
             if ($sftpHelper->isFile($file)) {
-                $res = $connection->delete($file, true);
+                $res = $sftpHelper->delete($file, false);
                 if (!$res) {
                     Log::logger()->addError(
                         'sftpRm: error removing file {file}',

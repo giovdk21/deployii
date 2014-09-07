@@ -46,7 +46,7 @@ class SftpRmdirCommand extends BaseCommand
             /** @noinspection PhpUndefinedMethodInspection */
             /** @var $connection Net_SFTP|resource */
             $connection = $controller->getConnection($connectionId);
-            $sftpHelper = new SftpHelper($connectionId, $connection, $connParams['sftpConnectionType']);
+            $sftpHelper = new SftpHelper($connectionId, $connection, $connParams);
 
             if (!$recursive) {
                 $res = $sftpHelper->rmdir($dir);
@@ -59,6 +59,7 @@ class SftpRmdirCommand extends BaseCommand
                     ['dir' => $dir, 'recursive' => ($recursive ? 'yes' : 'no')]
                 );
             }
+            $sftpHelper->flushCache();
         } else {
             $controller->stdout(' [dry run]', Console::FG_YELLOW);
         }

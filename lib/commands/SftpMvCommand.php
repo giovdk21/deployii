@@ -52,9 +52,9 @@ class SftpMvCommand extends BaseCommand
         if (!$this->controller->dryRun) {
 
             /** @noinspection PhpUndefinedMethodInspection */
-            /** @var $connection Net_SFTP */
+            /** @var $connection Net_SFTP|resource */
             $connection = $this->controller->getConnection($connectionId);
-            $sftpHelper = new SftpHelper($connectionId, $connection);
+            $sftpHelper = new SftpHelper($connectionId, $connection, $connParams);
 
             if (!$sftpHelper->fileExists($pathFrom)) {
                 $this->controller->stdout("\n");
@@ -69,7 +69,7 @@ class SftpMvCommand extends BaseCommand
 
                     if (!$sftpHelper->fileExists($insidePathTo)) {
                         // not overwriting; copy the source directory into the destination folder:
-                        $res = $connection->rename($pathFrom, $insidePathTo);
+                        $res = $sftpHelper->rename($pathFrom, $insidePathTo);
                     } else {
                         $this->controller->stdout("\n");
                         $this->controller->warn(
@@ -91,7 +91,7 @@ class SftpMvCommand extends BaseCommand
                     // if destination exists, overwrite it with the source file/dir
                     // note: if pathTo is a directory, it has to be empty in order to be overwritten
                     try {
-                        $res = $connection->rename($pathFrom, $pathTo);
+                        $res = $sftpHelper->rename($pathFrom, $pathTo);
                     } catch (ErrorException $e) {
                         $this->controller->stdout("\n");
                         $this->controller->warn($e->getMessage());
