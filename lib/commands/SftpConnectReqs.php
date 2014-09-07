@@ -13,6 +13,7 @@
 namespace app\lib\commands;
 
 use app\lib\Log;
+use app\lib\SftpHelper;
 use yii\base\Behavior;
 use yii\helpers\Console;
 
@@ -32,21 +33,24 @@ class SftpConnectReqs extends Behavior
     {
         return [
             // sftp hostname
-            'sftpHost'        => '',
+            'sftpHost'           => '',
             // sftp username
-            'sftpUsername'    => '',
+            'sftpUsername'       => '',
             // sftp password
-            'sftpPassword'    => '',
+            'sftpPassword'       => '',
             // sftp port
-            'sftpPort'        => '22',
-            'sftpTimeout'     => '30',
-            // sftp authentication method (password|key)
-            'sftpAuthMethod'  => 'key',
+            'sftpPort'           => '22',
+            'sftpTimeout'        => '30',
+            // sftp authentication method (SftpHelper::AUTH_METHOD_KEY | SftpHelper::AUTH_METHOD_PASSWORD)
+            'sftpAuthMethod'     => SftpHelper::AUTH_METHOD_KEY,
             // path to the private key file
-            'sftpKeyFile'     => '',
+            'sftpKeyFile'        => '',
             // password of the key file
-            'sftpKeyPassword' => '',
-            'sftpLabelColor' => Console::BG_BLUE,
+            'sftpKeyPassword'    => '',
+            // connection type (SftpHelper::TYPE_SFTP | SftpHelper::TYPE_FTP)
+            'sftpConnectionType' => SftpHelper::TYPE_SFTP,
+            // background color of the label used to identify the current connection
+            'sftpLabelColor'     => Console::BG_BLUE,
         ];
     }
 

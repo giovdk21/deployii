@@ -11,6 +11,7 @@ namespace app\lib\commands;
 
 use app\lib\BaseCommand;
 use app\lib\Log;
+use app\lib\SftpHelper;
 use yii\helpers\Console;
 use Yii;
 use Net_SFTP;
@@ -40,9 +41,25 @@ class SftpDisconnectCommand extends BaseCommand
         if (!$controller->dryRun) {
             // the getConnection method is provided by the SftpConnectReqs Behavior
             /** @noinspection PhpUndefinedMethodInspection */
-            /** @var $connection Net_SFTP */
+            /** @var $connection Net_SFTP|resource */
             $connection = $controller->getConnection($connectionId);
-            $connection->disconnect();
+
+
+            switch ($connParams['sftpConnectionType']) {
+
+                case SftpHelper::TYPE_SFTP:
+                    $connection->disconnect();
+                    break;
+
+                case SftpHelper::TYPE_FTP:
+                    ftp_close($connection);
+                    break;
+
+                default:
+                    $controller->stdout("\n");
+                    Log::throwException('Unsupported connection type: '.$connParams['sftpConnectionType']);
+                    break;
+            }
         } else {
             $controller->stdout(' [dry run]', Console::FG_YELLOW);
         }

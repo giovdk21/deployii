@@ -10,26 +10,39 @@
 namespace app\lib;
 
 use Net_SFTP;
+use yii\helpers\Console;
 
 class SftpHelper
 {
 
+    const AUTH_METHOD_KEY = 'key';
+    const AUTH_METHOD_PASSWORD = 'password';
+
+    const TYPE_SFTP = 'sftp';
+    const TYPE_FTP = 'ftp';
+
     /** @var array Save the retrieved results in a cache array */
     public static $cache = [];
 
-    /** @var  \Net_SFTP */
+    /** @var  \Net_SFTP|resource */
     private $_connection;
 
-    private $_connId;
+    /** @var string the connection id */
+    private $_connId = '';
+
+    /** @var string the connection type */
+    private $_connType = '';
 
     /**
      * @param string $connId     the connection ID
      * @param mixed  $connection the FTP or Net_SFTP connection returned by $controller->getConnection
+     * @param string $type the connection type (self::TYPE_SFTP | self::TYPE_FTP)
      */
-    public function __construct($connId, $connection)
+    public function __construct($connId, $connection, $type)
     {
         $this->_connId = $connId;
         $this->_connection = $connection;
+        $this->_connType = $type;
     }
 
     /**
@@ -195,6 +208,82 @@ class SftpHelper
     public function isFile($path)
     {
         return $this->isType($path, 'file');
+    }
+
+    /**
+     * Removes an empty directory.
+     *
+     * @param string $dir
+     *
+     * @return bool
+     */
+    public function rmdir($dir)
+    {
+        $res = false;
+
+        switch ($this->_connType) {
+
+            case SftpHelper::TYPE_SFTP:
+                $res = $this->_connection->rmdir($dir);
+                break;
+
+            case SftpHelper::TYPE_FTP:
+                $res = @ftp_rmdir($this->_connection, $dir);
+                break;
+
+            default:
+                Console::stdout("\n");
+                Log::throwException('Unsupported connection type: '.$this->_connType);
+                break;
+        }
+
+        return $res;
+    }
+
+    /**
+     * Deletes a file or directory on the SFTP/FTP server.
+     *
+     * @param string $path
+     * @param bool   $recursive if $path is a directory, it will delete also its content
+     *
+     * @return bool
+     */
+    public function delete($path, $recursive = true)
+    {
+        $res = false;
+
+        switch ($this->_connType) {
+
+            case SftpHelper::TYPE_SFTP:
+                $res = $this->_connection->delete($path, $recursive);
+                break;
+
+            case SftpHelper::TYPE_FTP:
+                $res = @ftp_delete($this->_connection, $path);
+
+                if (!$res && $recursive) {
+                    $list = @ftp_nlist($this->_connection, $path);
+
+                    // if $path exists and it is a directory:
+                    if (!empty($list)) {
+                        foreach ($list as $file) {
+                            $this->delete($file, true);
+                        }
+
+                        // deleting the parent path after the recursion
+                        $res = $this->delete($path, false);
+                    }
+                }
+
+                break;
+
+            default:
+                Console::stdout("\n");
+                Log::throwException('Unsupported connection type: '.$this->_connType);
+                break;
+        }
+
+        return $res;
     }
 
 } 

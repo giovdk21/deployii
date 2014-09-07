@@ -11,6 +11,7 @@ namespace app\lib\commands;
 
 use app\lib\BaseCommand;
 use app\lib\Log;
+use app\lib\SftpHelper;
 use yii\helpers\Console;
 use Yii;
 use Net_SFTP;
@@ -42,12 +43,29 @@ class SftpChdirCommand extends BaseCommand
         if (!$controller->dryRun) {
             // the getConnection method is provided by the SftpConnectReqs Behavior
             /** @noinspection PhpUndefinedMethodInspection */
-            /** @var $connection Net_SFTP */
+            /** @var $connection Net_SFTP|resource */
             $connection = $controller->getConnection($connectionId);
-            $res = $connection->chdir($dir);
+
+            switch ($connParams['sftpConnectionType']) {
+
+                case SftpHelper::TYPE_SFTP:
+                    $res = $connection->chdir($dir);
+                    break;
+
+                case SftpHelper::TYPE_FTP:
+                    $res = @ftp_chdir($connection, $dir);
+                    break;
+
+                default:
+                    $controller->stdout("\n");
+                    Log::throwException('Unsupported connection type: '.$connParams['sftpConnectionType']);
+                    break;
+            }
+
             if (!$res) {
-                Log::logger()->addError(
-                    'sftpChdir: error changing directory to {dir}',
+                $controller->stdout("\n");
+                Log::throwException(
+                    'sftpChdir: error changing directory to '.$dir,
                     ['dir' => $dir]
                 );
             }

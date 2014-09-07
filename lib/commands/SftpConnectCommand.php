@@ -11,8 +11,8 @@ namespace app\lib\commands;
 
 use app\lib\BaseCommand;
 use app\lib\Log;
+use app\lib\SftpHelper;
 use Crypt_RSA;
-use yii\console\Exception;
 use yii\helpers\Console;
 use Yii;
 use Net_SFTP;
@@ -44,6 +44,7 @@ class SftpConnectCommand extends BaseCommand
         $authMethod = $connectionParams['sftpAuthMethod'];
         $keyFile = $connectionParams['sftpKeyFile'];
         $keyPassword = $connectionParams['sftpKeyPassword'];
+        $connectionType = $connectionParams['sftpConnectionType'];
         $bgColor = $connectionParams['sftpLabelColor'];
 
 
@@ -57,36 +58,56 @@ class SftpConnectCommand extends BaseCommand
 
         if (!$controller->dryRun) {
 
-            $sftp = new Net_SFTP($host, $port, $timeout);
+            switch ($connectionType) {
 
-            switch ($authMethod) {
+                case SftpHelper::TYPE_SFTP:
 
-                case 'password':
-                    $res = $sftp->login($username, $password);
+                    $connection = new Net_SFTP($host, $port, $timeout);
+
+                    switch ($authMethod) {
+
+                        case SftpHelper::AUTH_METHOD_PASSWORD:
+                            $res = $connection->login($username, $password);
+                            break;
+
+                        case SftpHelper::AUTH_METHOD_KEY:
+                            $key = new Crypt_RSA();
+
+                            if (!empty($keyPassword)) {
+                                $key->setPassword($keyPassword);
+                            }
+
+                            if (!empty($keyFile) && file_exists($keyFile)) {
+                                $key->loadKey(file_get_contents($keyFile));
+                            } else {
+                                $controller->stdout("\n");
+                                Log::throwException('sftpConnect: keyFile not found ('.$keyFile.')');
+                            }
+
+                            $res = $connection->login($username, $key);
+                            break;
+                    }
                     break;
 
-                case 'key':
-                    $key = new Crypt_RSA();
+                case SftpHelper::TYPE_FTP:
+                    // $authMethod ignored: it is always password based for FTP connections
 
-                    if (!empty($keyPassword)) {
-                        $key->setPassword($keyPassword);
-                    }
+                    $connection = ftp_connect($host, $port, $timeout);
+                    $res = ftp_login($connection, $username, $password);
+                    break;
 
-                    if (!empty($keyFile) && file_exists($keyFile)) {
-                        $key->loadKey(file_get_contents($keyFile));
-                    } else {
-                        $controller->stdout("\n");
-                        Log::throwException('sftpConnect: keyFile not found ('.$keyFile.')');
-                    }
-
-                    $res = $sftp->login($username, $key);
+                default:
+                    $controller->stdout("\n");
+                    Log::throwException('Unsupported connection type: '.$connectionType);
                     break;
             }
+
+
 
             if ($res) {
                 // the setConnection method is provided by the SftpConnectReqs Behavior
                 /** @noinspection PhpUndefinedMethodInspection */
-                $controller->setConnection($this->_connectionId, $sftp);
+                $controller->setConnection($this->_connectionId, $connection);
             } else {
                 $controller->stdout("\n");
                 Log::throwException('Unable to connect with '.$connectionString);
@@ -106,7 +127,7 @@ class SftpConnectCommand extends BaseCommand
      * Example:
      * 'sftpAuthMethod' => 'key',
      * 'sftpUsername'   => 'testuser',
-     * 'conn1.sftpAuthMethod' => 'password',
+     * 'conn1.sftpAuthMethod' => 'password', // "conn1" is the connection id
      * 'conn1.sftpPassword'   => '...',
      *
      *
@@ -122,11 +143,14 @@ class SftpConnectCommand extends BaseCommand
             Log::throwException('sftpConnect: caling '.__METHOD__.' without a valid connection id set.');
         }
 
-        foreach($params as $key => $value) {
+        $requirements = new SftpConnectReqs();
+        $cmdOptions = $requirements->getCommandOptions();
+
+        foreach($cmdOptions as $key => $value) {
             if (isset($params[$this->_connectionId.'.'.$key])) {
                 $res[$key] = $params[$this->_connectionId.'.'.$key];
             } else {
-                $res[$key] = $value;
+                $res[$key] = $params[$key];
             }
         }
 

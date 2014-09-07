@@ -74,12 +74,13 @@ class Log
      * Log the error message and throw \yii\console\Exception
      *
      * @param string $message
+     * @param array  $context
      *
      * @throws \yii\console\Exception
      */
-    public static function throwException($message)
+    public static function throwException($message, array $context = [])
     {
-        Log::logger()->addCritical($message);
+        Log::logger()->addCritical($message, $context);
         throw new Exception($message);
     }
 
