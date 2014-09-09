@@ -86,7 +86,7 @@ class ReplaceInFilesCommand extends BaseCommand
     private function _replace($file)
     {
         $res = true;
-
+        $taskRunner = $this->taskRunner;
         $this->controller->stdout("\n - ".$file);
 
         if (!$this->controller->dryRun) {
@@ -96,7 +96,7 @@ class ReplaceInFilesCommand extends BaseCommand
             foreach ($this->_replaceList as $replaceInfo) {
 
                 $pattern = (isset($replaceInfo[0]) ? $replaceInfo[0] : '');
-                $replacement = (isset($replaceInfo[1]) ? $replaceInfo[1] : '');
+                $replacement = (isset($replaceInfo[1]) ? $taskRunner->parseStringParams($replaceInfo[1]) : '');
                 $flags = (isset($replaceInfo[2]) ? $replaceInfo[2] : '');
 
 
