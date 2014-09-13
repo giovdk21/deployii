@@ -84,6 +84,7 @@ Available features
 - FTP support (passive mode only)
 - multiple SFTP / FTP connections
 - replace in files
+- script command to fetch (clone) from git
 - path aliases to the workspace and the build script folders
 - parameters placeholders also work in paths
 - build execution log
@@ -94,10 +95,7 @@ Available features
 Planned features
 -------------
 
-- sftp / ftp file transfer commands
-- execute remote commands over ssh
 - command to run composer which downloads it if not present
-- command to fetch (clone) / update from git
 - command to self update DeploYii
 - codeception related commands
 - other CI related commands
