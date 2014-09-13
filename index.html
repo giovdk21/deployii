@@ -47,7 +47,7 @@ or as deployment solution to package and deploy your code.</p>
 <a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting started</h2>
 
 <ol>
-<li>get DeploYii: <code>composer create-project giovdk21/deployii deployii ~0.4</code>
+<li>get DeploYii: <code>composer create-project giovdk21/deployii deployii ~0.5</code>
 </li>
 <li>go inside the deployii folder (<code>cd deployii/</code>)</li>
 <li>run <code>./deployii</code> to check the available options</li>
@@ -59,7 +59,7 @@ or as deployment solution to package and deploy your code.</p>
 
 <div class="highlight highlight-php"><pre><span class="k">return</span> <span class="p">[</span>
 
-  <span class="s1">'deployiiVersion'</span> <span class="o">=&gt;</span> <span class="s1">'0.4.0'</span><span class="p">,</span>
+  <span class="s1">'deployiiVersion'</span> <span class="o">=&gt;</span> <span class="s1">'0.5.0'</span><span class="p">,</span>
 
   <span class="s1">'require'</span> <span class="o">=&gt;</span> <span class="p">[],</span>
 
@@ -101,8 +101,16 @@ or as deployment solution to package and deploy your code.</p>
 <li>create folder</li>
 <li>remove file</li>
 <li>remove folder (recursive)</li>
+<li>move files and folders</li>
 <li>set files and folders permissions</li>
 <li>archive/compress files and folders</li>
+<li>SFTP support (put, get, mkdir, chmod, mv, rm, rmdir, ...)</li>
+<li>SFTP authentication via RSA key</li>
+<li>SFTP exec (exec remote command via ssh)</li>
+<li>FTP support (passive mode only)</li>
+<li>multiple SFTP / FTP connections</li>
+<li>replace in files</li>
+<li>script command to fetch (clone) from git</li>
 <li>path aliases to the workspace and the build script folders</li>
 <li>parameters placeholders also work in paths</li>
 <li>build execution log</li>
@@ -111,10 +119,7 @@ or as deployment solution to package and deploy your code.</p>
 <a name="planned-features" class="anchor" href="#planned-features"><span class="octicon octicon-link"></span></a>Planned features</h2>
 
 <ul>
-<li>sftp / ftp file transfer commands</li>
-<li>execute remote commands over ssh</li>
 <li>command to run composer which downloads it if not present</li>
-<li>command to fetch (clone) / update from git</li>
 <li>command to self update DeploYii</li>
 <li>codeception related commands</li>
 <li>other CI related commands</li>
